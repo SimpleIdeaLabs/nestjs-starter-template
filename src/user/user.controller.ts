@@ -3,12 +3,15 @@ import {
   Controller,
   Get,
   Post,
+  Req,
   Res,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { MyLoggerService } from '../common/modules/my-logger/my-logger.service';
+import { UserAuthGuard } from './user-auth.guard';
 import { LoginParams } from './user.dtos';
 import { User } from './user.entity';
 import { UserService } from './user.service';
@@ -32,6 +35,19 @@ export class UserController {
       return res.json(response);
     } catch (error) {
       this.myLogger.error('Login', error);
+      return res.redirect('/v1/server-error');
+    }
+  }
+
+  @Get('/session')
+  @UseGuards(UserAuthGuard)
+  async getSession(@Req() req: Request, @Res() res: Response) {
+    try {
+      const response = await this.userService.getSession(req);
+      if (!response.status) return res.redirect('/v1/unauthorized');
+      return res.json(response);
+    } catch (error) {
+      this.myLogger.error('Get Session', error);
       return res.redirect('/v1/server-error');
     }
   }

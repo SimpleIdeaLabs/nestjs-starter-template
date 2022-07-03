@@ -1,10 +1,10 @@
 import { Injectable, Dependencies } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { Request } from 'express';
 import { Repository } from 'typeorm';
 import { ApiResponse } from '../common/dtos/api-response.dto';
 import { LoginParams, SaveUserParams } from './user.dtos';
 import { User } from './user.entity';
-
 @Injectable()
 @Dependencies(getRepositoryToken(User))
 export class UserService {
@@ -40,7 +40,7 @@ export class UserService {
     await this.usersRepository.delete(id);
   }
 
-  async login(params: LoginParams): Promise<ApiResponse<User>> {
+  async login(params: LoginParams): Promise<ApiResponse<string>> {
     const { email, password } = params;
     const user = await this.usersRepository.findOne({
       where: {
@@ -50,19 +50,27 @@ export class UserService {
     if (!user) {
       return new ApiResponse({
         status: false,
-        message: 'User not found',
+        message: 'Login failed',
       });
     }
     if (!user.isPasswordMatching(password)) {
       return new ApiResponse({
         status: false,
-        message: 'Password not matching',
+        message: 'Login failed',
       });
     }
+
     return new ApiResponse({
       status: true,
-      message: 'User found',
-      data: user,
+      message: 'Login success',
+      data: await user.toJWTToken(),
+    });
+  }
+
+  async getSession(req: Request): Promise<ApiResponse<User>> {
+    return new ApiResponse({
+      status: true,
+      data: req.user,
     });
   }
 }

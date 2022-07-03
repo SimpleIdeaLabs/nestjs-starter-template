@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import * as cryptojs from 'crypto-js';
+import * as JWT from 'jsonwebtoken';
 
 @Entity()
 export class User {
@@ -37,8 +38,23 @@ export class User {
       this.securedPassword,
       process.env.CRYPTO_KEY,
     ).toString(cryptojs.enc.Utf8);
-    console.log(decryptedPassword);
-    console.log(rawPassword);
     return decryptedPassword == rawPassword;
+  }
+
+  makeSafe() {
+    this.securedPassword = null;
+    return this;
+  }
+
+  async toJWTToken() {
+    return await JWT.sign(
+      {
+        id: this.id,
+        firstName: this.firstName,
+        lastName: this.lastName,
+        email: this.email,
+      },
+      process.env.JWT_SECRET,
+    );
   }
 }
