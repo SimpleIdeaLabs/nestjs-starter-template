@@ -15,5 +15,6 @@ export class UserController {
     user.firstName = 'Mark';
     user.lastName = 'Matute';
     await this.userService.save(user);
+    return true;
   }
 }
