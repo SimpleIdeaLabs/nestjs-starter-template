@@ -17,8 +17,10 @@ services:
       - '/app/node_modules'
     links:
       - api-service-mongo
+      - api-service-mysql
     depends_on:
       - api-service-mongo
+      - api-service-mysql
 
   api-service-mongo:
     image: 'mongo:4.0'
@@ -32,7 +34,7 @@ services:
   api-service-mysql:
     platform: linux/amd64
     image: 'mysql:5.7.33'
-    container_name: milo-mysql
+    container_name: api-service-mysql
     volumes:
       - './.data/mysql:/var/lib/mysql'
     ports:
