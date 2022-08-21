@@ -8,11 +8,14 @@
     "type": "node",
     "request": "attach",
     "name": "Attach Docker",
-    "protocol": "auto",
     "sourceMaps": true,
     "port": 9229,
     "localRoot": "${workspaceRoot}",
-    "remoteRoot": "/app"
+    "remoteRoot": "/app",
+     "outFiles": [
+        "${workspaceFolder}/dist/**/*.js",
+        "!**/node_modules/**"
+      ]
   },
   {
     "name": "Attach",
