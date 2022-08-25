@@ -1,33 +1,29 @@
-import { VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { getAppInstance } from './app.module';
 import { ApiLoggerInterceptor } from './common/interceptors/api-logger.interceptor';
-import { MyLoggerService } from './common/modules/my-logger/my-logger.service';
+import { DatabaseService } from './modules/database/database.service';
+import { MyLoggerService } from './modules/my-logger/my-logger.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await getAppInstance();
   const configService = app.get(ConfigService);
   const myLoggerService = app.get(MyLoggerService);
+  const database = app.get(DatabaseService);
 
-  // enable cors
-  app.enableCors();
+  await database.setUp();
 
-  // app logger
+  /**
+   * Attach loggers
+   * Attached here due to e2e test cyclic deps
+   */
   app.useLogger(myLoggerService);
+  app.useGlobalInterceptors(
+    new ApiLoggerInterceptor(myLoggerService, configService),
+  );
 
-  // api logger
-  app.useGlobalInterceptors(new ApiLoggerInterceptor(myLoggerService));
-
-  // versioning
-  app.enableVersioning({
-    type: VersioningType.URI,
-  });
-
-  // start app
   const port = configService.get<number>('port');
   await app.listen(port);
 
-  myLoggerService.log(`App listenting on port ${port}`);
+  myLoggerService.log(`App listening on port ${port}`);
 }
 bootstrap();

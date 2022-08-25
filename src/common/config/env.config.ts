@@ -7,4 +7,8 @@ export default () => ({
   mysqlServer: process.env.MYSQL_SERVER_NAME,
   mysqlPort: process.env.MYSQL_PORT,
   mysqlDatabase: process.env.MYSQL_DATABASE,
+  jwtSecret: process.env.JWT_SECRET,
+  bcryptSaltRounds: process.env.BCRYPT_SALT_ROUNDS,
+  apiVersion: process.env.API_VERSION,
+  gitHead: process.env.GIT_HEAD,
 });

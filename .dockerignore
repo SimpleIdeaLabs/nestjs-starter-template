@@ -1,0 +1,2 @@
+# to prevent error with bcrypt
+node_modules

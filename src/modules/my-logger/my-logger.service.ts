@@ -12,10 +12,14 @@ export class MyLoggerService implements LoggerService {
   // api logger
   apiLogger: winston.Logger;
 
+  // env
+  env: string;
+
   constructor(private readonly configService: ConfigService) {
     const mongoDbTransports = winston.transports as any;
+    this.env = this.configService.get('env');
 
-    // initialise app logger
+    // initialize app logger
     this.defaultLogger = winston.createLogger({
       format: winston.format.simple(),
       transports: [
@@ -30,7 +34,7 @@ export class MyLoggerService implements LoggerService {
       ],
     });
 
-    // initialise api logger
+    // initialize api logger
     this.apiLogger = winston.createLogger({
       format: winston.format.simple(),
       transports: [
@@ -50,6 +54,7 @@ export class MyLoggerService implements LoggerService {
    * Wrote a 'log' level log for API Requests
    */
   apiLog(message: any, metadata: any) {
+    if (this.env === 'TEST') return;
     this.apiLogger.info(message, { metadata });
   }
 
@@ -57,6 +62,7 @@ export class MyLoggerService implements LoggerService {
    * Write a 'log' level log.
    */
   log(message: any, metadata?: any) {
+    if (this.env === 'TEST') return;
     this.defaultLogger.info(message, { metadata });
   }
 
@@ -64,6 +70,7 @@ export class MyLoggerService implements LoggerService {
    * Write an 'error' level log.
    */
   error(message: any, metadata: any) {
+    if (this.env === 'TEST') return;
     this.defaultLogger.error(message, { metadata });
   }
 
@@ -71,6 +78,7 @@ export class MyLoggerService implements LoggerService {
    * Write a 'warn' level log.
    */
   warn(message: any, metadata?: any) {
+    if (this.env === 'TEST') return;
     this.defaultLogger.warn(message, { metadata });
   }
 
@@ -78,6 +86,7 @@ export class MyLoggerService implements LoggerService {
    * Write a 'debug' level log.
    */
   debug?(message: any, metadata?: any) {
+    if (this.env === 'TEST') return;
     this.defaultLogger.debug(message, { metadata });
   }
 
@@ -85,6 +94,7 @@ export class MyLoggerService implements LoggerService {
    * Write a 'verbose' level log.
    */
   verbose?(message: any, metadata?: any) {
+    if (this.env === 'TEST') return;
     this.defaultLogger.verbose(message, { metadata });
   }
 }

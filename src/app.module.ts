@@ -1,13 +1,17 @@
-import { Module } from '@nestjs/common';
+import { Module, VersioningType } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { MyLoggerModule } from './common/modules/my-logger/my-logger.module';
+import { AppService } from './common/services/app.service';
+import { MyLoggerModule } from './modules/my-logger/my-logger.module';
 import { Appv2Controller } from './appv2/appv2.controller';
 import envConfig from './common/config/env.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
-import { User } from './user/user.entity';
+import { UserModule } from './modules/user/user.module';
+import { HttpErrorsController } from './common/controllers/http-errors.controller';
+import { DataSource } from 'typeorm';
+import { DatabaseModule } from './modules/database/database.module';
+import { NestFactory } from '@nestjs/core';
+import { SystemModule } from './modules/system/system.module';
+import systemInfoInterceptor from './common/interceptors/system-info.interceptor';
 
 // config
 const configModule = ConfigModule.forRoot({
@@ -23,13 +27,46 @@ const typeormModule = TypeOrmModule.forRoot({
   username: process.env.MYSQL_USER,
   password: process.env.MYSQL_ROOT_PASSWORD,
   database: process.env.MYSQL_DATABASE,
-  entities: [User],
+  entities: [
+    process.env.ENV === 'TEST'
+      ? __dirname + '/../**/*.entity{.ts,.js}'
+      : __dirname + '/../**/*.entity.js',
+  ],
+
+  migrations: ['./dist/common/modules/database/migrations/*.js'],
   synchronize: true,
+  logging: false,
+  migrationsTableName: 'sys_migrations',
 });
 
 @Module({
-  imports: [configModule, typeormModule, MyLoggerModule, UserModule],
-  controllers: [AppController, Appv2Controller],
+  imports: [
+    configModule,
+    typeormModule,
+    MyLoggerModule,
+    UserModule,
+    DatabaseModule,
+    SystemModule,
+  ],
+  controllers: [Appv2Controller, HttpErrorsController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {
+  constructor(private dataSource: DataSource) {}
+}
+
+export const getAppInstance = async () => {
+  const _app = await NestFactory.create(AppModule);
+
+  _app.use(systemInfoInterceptor);
+
+  // enable cors
+  _app.enableCors();
+
+  // versioning
+  _app.enableVersioning({
+    type: VersioningType.URI,
+  });
+
+  return _app;
+};
