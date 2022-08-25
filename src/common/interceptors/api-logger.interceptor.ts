@@ -1,13 +1,12 @@
 import {
   CallHandler,
   ExecutionContext,
-  HttpStatus,
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { MyLoggerService } from '../modules/my-logger/my-logger.service';
-import { tap } from 'rxjs/operators';
+import { MyLoggerService } from '../../modules/my-logger/my-logger.service';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * ApiLoggerInterceptor
@@ -16,48 +15,58 @@ import { tap } from 'rxjs/operators';
  */
 @Injectable()
 export class ApiLoggerInterceptor implements NestInterceptor {
-  constructor(private readonly myLoggerService: MyLoggerService) { }
+  constructor(
+    private readonly myLoggerService: MyLoggerService,
+    private readonly configService: ConfigService,
+  ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const env = this.configService.get('env');
+    const apiVersion = this.configService.get('apiVersion');
+    const gitHead = this.configService.get('gitHead');
     const req = context.switchToHttp().getRequest();
-    const { statusCode } = context.switchToHttp().getResponse();
-    const {
-      originalUrl = '',
-      method = '',
-      params = {},
-      query = {},
-      body = {},
-      headers = {},
-    } = req;
+    const res = context.switchToHttp().getResponse();
 
-    return next.handle().pipe(
-      tap((data) => {
-        // request data
-        const request = {
-          originalUrl,
-          method,
-          params,
-          query,
-          body,
-          headers,
-        };
+    const oldWrite = res.write;
+    const oldEnd = res.end;
+    const chunks = [];
 
-        if (statusCode === HttpStatus.FORBIDDEN) {
-          data = null;
-        }
+    res.write = (chunk, ...args) => {
+      chunks.push(chunk);
+      return oldWrite.apply(res, [chunk, ...args]);
+    };
 
-        // response data
-        const response = {
-          statusCode,
-          data,
-        };
+    res.end = (chunk, ...args) => {
+      if (chunk) {
+        chunks.push(chunk);
+      }
 
-        // log
-        this.myLoggerService.apiLog(originalUrl, {
-          request,
-          response,
+      // response data
+      const body = Buffer.concat(chunks).toString('utf8');
+
+      if (env !== 'TEST') {
+        this.myLoggerService.apiLog(req.originalUrl, {
+          request: {
+            headers: req.headers,
+            body: req.body,
+            method: req.method,
+            params: req.params,
+            query: req.query,
+            user: req.user,
+            originalUrl: req.originalUrl,
+          },
+          response: {
+            body: JSON.parse(body),
+          },
+          system: {
+            apiVersion,
+            gitHead,
+          },
         });
-      }),
-    );
+      }
+      return oldEnd.apply(res, [chunk, ...args]);
+    };
+
+    return next.handle();
   }
 }

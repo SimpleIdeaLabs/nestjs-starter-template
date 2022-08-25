@@ -1,0 +1,42 @@
+version: '3'
+services:
+  api-service:
+    container_name: api-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: 'yarn test:e2e'
+    env_file:
+      - .env
+    ports:
+      - '3001:3001'
+      - '9229:9229'
+    volumes:
+      - ./:/app
+      - '/app/node_modules'
+    links:
+      - api-service-mongo
+      - api-service-mysql
+    depends_on:
+      - api-service-mongo
+      - api-service-mysql
+
+  api-service-mongo:
+    image: 'mongo:4.0'
+    container_name: api-service-mongo
+    ports:
+      - '5300:27017'
+    volumes:
+      - './.data/mongo:/data/db'
+      - './.data/mongoconfigdb:/data/configdb'
+
+  api-service-mysql:
+    platform: linux/amd64
+    image: 'mysql:5.7.33'
+    container_name: api-service-mysql
+    volumes:
+      - './.data/mysql:/var/lib/mysql'
+    ports:
+      - '5301:3306'
+    env_file:
+      - .env
