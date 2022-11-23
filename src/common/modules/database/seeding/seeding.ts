@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MyLoggerService } from '../../my-logger/my-logger.service';
+import { MyLoggerService } from '../../global/my-logger.service';
 import { RolesSeeding } from './roles';
 import { UsersSeeding } from './users';
 

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
-import { MyLoggerService } from '../my-logger/my-logger.service';
-import { System } from '../system/system.entity';
+import { System } from '../../../modules/system/system.entity';
+import { MyLoggerService } from '../global/my-logger.service';
 import { Seeding } from './seeding/seeding';
 
 @Injectable()
@@ -39,6 +39,11 @@ export class DatabaseService {
      * Start Migrations
      */
     await this.startMigrations();
+
+    /**
+     * Set System Set up
+     */
+    await this.setSystemSetUp();
   }
 
   public async hasBeenSetUp(): Promise<boolean> {

@@ -1,8 +1,8 @@
 import { ConfigService } from '@nestjs/config';
 import { getAppInstance } from './app.module';
 import { ApiLoggerInterceptor } from './common/interceptors/api-logger.interceptor';
-import { DatabaseService } from './modules/database/database.service';
-import { MyLoggerService } from './modules/my-logger/my-logger.service';
+import { DatabaseService } from './common/modules/database/database.service';
+import { MyLoggerService } from './common/modules/global/my-logger.service';
 
 async function bootstrap() {
   const app = await getAppInstance();
@@ -16,10 +16,8 @@ async function bootstrap() {
    * Attach loggers
    * Attached here due to e2e test cyclic deps
    */
-  app.useLogger(myLoggerService);
-  app.useGlobalInterceptors(
-    new ApiLoggerInterceptor(myLoggerService, configService),
-  );
+  app.useLogger(false);
+  app.useGlobalInterceptors(new ApiLoggerInterceptor(myLoggerService));
 
   const port = configService.get<number>('port');
   await app.listen(port);

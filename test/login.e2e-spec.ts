@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import supertest, * as request from 'supertest';
 import { getAppInstance } from '../src/app.module';
-import { DatabaseService } from '../src/modules/database/database.service';
+import { DatabaseService } from '../src/common/modules/database/database.service';
 
 describe('Login2  2(e2e)', () => {
   let server: supertest.SuperTest<supertest.Test>;

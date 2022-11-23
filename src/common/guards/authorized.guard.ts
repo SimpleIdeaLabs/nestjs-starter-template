@@ -12,14 +12,19 @@ export class AuthorizedGuard {
   }
 
   canActivate(context) {
-    const roles = this.reflector.get('roles', context.getHandler());
-    if (!roles) {
-      return true;
+    try {
+      const roles = this.reflector.get('roles', context.getHandler());
+      if (!roles) {
+        return true;
+      }
+      const request = context.switchToHttp().getRequest();
+      const user = request.user;
+      const userRoles = user.roles.map((r: any) => r.name);
+      const intersect = lodash.intersection(roles, userRoles);
+      return intersect.length > 0;
+    } catch (error) {
+      console.log(error);
+      return false;
     }
-    const request = context.switchToHttp().getRequest();
-    const user = request.user;
-    const userRoles = user.roles.map((r: any) => r.name);
-    const intersect = lodash.intersection(roles, userRoles);
-    return intersect.length > 0;
   }
 }

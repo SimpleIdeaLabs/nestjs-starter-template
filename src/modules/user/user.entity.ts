@@ -4,6 +4,9 @@ import {
   PrimaryGeneratedColumn,
   ManyToMany,
   JoinTable,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import * as jwt from 'jsonwebtoken';
 import config from '../../common/config/env.config';
@@ -14,6 +17,18 @@ import * as bcrypt from 'bcrypt';
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @ManyToOne(() => User)
+  createdBy: User;
+
+  @ManyToOne(() => User)
+  updatedBy: User;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @Column()
   firstName: string;
@@ -38,8 +53,8 @@ export class User {
     return bcrypt.compareSync(`${rawPassword}`, this.hashPassword);
   }
 
-  @Column({ default: true })
-  isActive: boolean;
+  @Column({ default: false })
+  deleted: boolean;
 
   @ManyToMany(() => Role)
   @JoinTable()
@@ -52,7 +67,7 @@ export class User {
         firstName: this.firstName,
         lastName: this.lastName,
         email: this.email,
-        active: this.isActive,
+        deleted: this.deleted,
         roles: this.roles,
       },
       config().jwtSecret,
@@ -65,7 +80,7 @@ export class User {
       firstName: this.firstName,
       lastName: this.lastName,
       email: this.email,
-      isActive: this.isActive,
+      deleted: this.deleted,
       roles: this.roles,
     };
   }

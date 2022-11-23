@@ -40,3 +40,5 @@ lerna-debug.log*
 prod.env
 
 node-modules-report.html
+
+/uploads

@@ -2,7 +2,11 @@ import { Injectable, LoggerService } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as winston from 'winston';
 import 'winston-mongodb';
-import { API_LOG_COLLECTION, APP_LOG_COLLECTION } from './my-logger.constants';
+import {
+  API_LOG_COLLECTION,
+  APP_LOG_COLLECTION,
+} from '../../config/my-logger.constants';
+import { UtilService } from './util.service';
 
 @Injectable()
 export class MyLoggerService implements LoggerService {
@@ -15,7 +19,10 @@ export class MyLoggerService implements LoggerService {
   // env
   env: string;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly utilService: UtilService,
+  ) {
     const mongoDbTransports = winston.transports as any;
     this.env = this.configService.get('env');
 
@@ -55,7 +62,17 @@ export class MyLoggerService implements LoggerService {
    */
   apiLog(message: any, metadata: any) {
     if (this.env === 'TEST') return;
-    this.apiLogger.info(message, { metadata });
+    this.apiLogger.info(message, {
+      metadata,
+    });
+  }
+
+  /**
+   * Wrote a 'error' level log for API Requests
+   */
+  apiError(message: any, metadata: any) {
+    if (this.env === 'TEST') return;
+    this.apiLogger.error(message, { metadata });
   }
 
   /**
@@ -63,7 +80,12 @@ export class MyLoggerService implements LoggerService {
    */
   log(message: any, metadata?: any) {
     if (this.env === 'TEST') return;
-    this.defaultLogger.info(message, { metadata });
+    this.defaultLogger.info(message, {
+      metadata: {
+        requestId: this.utilService.getRequestId(),
+        metadata,
+      },
+    });
   }
 
   /**
@@ -71,7 +93,12 @@ export class MyLoggerService implements LoggerService {
    */
   error(message: any, metadata: any) {
     if (this.env === 'TEST') return;
-    this.defaultLogger.error(message, { metadata });
+    this.defaultLogger.error(message, {
+      metadata: {
+        requestId: this.utilService.getRequestId(),
+        metadata,
+      },
+    });
   }
 
   /**
@@ -79,7 +106,12 @@ export class MyLoggerService implements LoggerService {
    */
   warn(message: any, metadata?: any) {
     if (this.env === 'TEST') return;
-    this.defaultLogger.warn(message, { metadata });
+    this.defaultLogger.warn(message, {
+      metadata: {
+        requestId: this.utilService.getRequestId(),
+        metadata,
+      },
+    });
   }
 
   /**
@@ -87,7 +119,12 @@ export class MyLoggerService implements LoggerService {
    */
   debug?(message: any, metadata?: any) {
     if (this.env === 'TEST') return;
-    this.defaultLogger.debug(message, { metadata });
+    this.defaultLogger.debug(message, {
+      metadata: {
+        requestId: this.utilService.getRequestId(),
+        metadata,
+      },
+    });
   }
 
   /**
@@ -95,6 +132,11 @@ export class MyLoggerService implements LoggerService {
    */
   verbose?(message: any, metadata?: any) {
     if (this.env === 'TEST') return;
-    this.defaultLogger.verbose(message, { metadata });
+    this.defaultLogger.verbose(message, {
+      metadata: {
+        requestId: this.utilService.getRequestId(),
+        metadata,
+      },
+    });
   }
 }

@@ -1,17 +1,27 @@
-import { Module, VersioningType } from '@nestjs/common';
+import {
+  Global,
+  MiddlewareConsumer,
+  Module,
+  RequestMethod,
+  VersioningType,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AppService } from './common/services/app.service';
-import { MyLoggerModule } from './modules/my-logger/my-logger.module';
+import { AppService } from './common/modules/global/app.service';
 import { Appv2Controller } from './appv2/appv2.controller';
 import envConfig from './common/config/env.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './modules/user/user.module';
-import { HttpErrorsController } from './common/controllers/http-errors.controller';
 import { DataSource } from 'typeorm';
-import { DatabaseModule } from './modules/database/database.module';
+import { DatabaseModule } from './common/modules/database/database.module';
 import { NestFactory } from '@nestjs/core';
 import { SystemModule } from './modules/system/system.module';
-import systemInfoInterceptor from './common/interceptors/system-info.interceptor';
+import systemInfoInterceptor from './common/middlewares/request-id/system-info.interceptor';
+import { IsRoleExistsConstraint } from './common/validators/role-exists.validator';
+import { useContainer } from 'class-validator';
+import { PatientModule } from './modules/patient/patient.module';
+import { IsPatientExistsConstraint } from './common/validators/patient-exists.validator';
+import { GlobalModule } from './common/modules/global/global.module';
+import { RequestIdMiddleware } from './common/middlewares/request-id/request-id.middleware';
 
 // config
 const configModule = ConfigModule.forRoot({
@@ -35,35 +45,60 @@ const typeormModule = TypeOrmModule.forRoot({
 
   migrations: ['./dist/common/modules/database/migrations/*.js'],
   synchronize: true,
-  logging: false,
+  logging: true,
   migrationsTableName: 'sys_migrations',
 });
 
+@Global()
 @Module({
   imports: [
     configModule,
     typeormModule,
-    MyLoggerModule,
     UserModule,
     DatabaseModule,
     SystemModule,
+    PatientModule,
+    GlobalModule,
   ],
-  controllers: [Appv2Controller, HttpErrorsController],
-  providers: [AppService],
+  controllers: [Appv2Controller],
+  providers: [AppService, IsRoleExistsConstraint, IsPatientExistsConstraint],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}
+
+  /**
+   * Request ID Middlewares
+   */
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(RequestIdMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
 }
 
 export const getAppInstance = async () => {
   const _app = await NestFactory.create(AppModule);
 
+  /**
+   * Allow NestJS Dependency Injector
+   * to be used for class-validator
+   */
+  useContainer(_app.select(AppModule), { fallbackOnErrors: true });
+
+  /**
+   * Attach System Data
+   * on response headers
+   */
   _app.use(systemInfoInterceptor);
 
-  // enable cors
+  /**
+   * Enable CORS
+   */
   _app.enableCors();
 
-  // versioning
+  /**
+   * Enable API Versioning
+   */
   _app.enableVersioning({
     type: VersioningType.URI,
   });

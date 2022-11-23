@@ -29,7 +29,7 @@ export class AuthenticatedGuard implements CanActivate {
           where: {
             id: user.id,
             email: user.email,
-            isActive: true,
+            deleted: false,
           },
           relations: ['roles'],
         })
@@ -40,8 +40,8 @@ export class AuthenticatedGuard implements CanActivate {
           request.user = queriedUser.toJSON();
           return true;
         });
-      return true;
     } catch (error) {
+      console.log(error);
       return false;
     }
   }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { ROLE_TYPES } from '../../user/role.contants';
-import { Role } from '../../user/role.entity';
+import { ROLE_TYPES } from '../../../../modules/user/role.contants';
+import { Role } from '../../../../modules/user/role.entity';
 
 @Injectable()
 export class RolesSeeding {
@@ -17,10 +17,22 @@ export class RolesSeeding {
     roles.push(superAdminRole);
 
     /**
-     * Admin Role
+     * PMS Admin Role
      */
-    const adminRole = new Role(ROLE_TYPES.ADMIN);
+    const adminRole = new Role(ROLE_TYPES.PMS_ADMIN);
     roles.push(adminRole);
+
+    /**
+     * Cashier
+     */
+    const cashierRole = new Role(ROLE_TYPES.CASHIER);
+    roles.push(cashierRole);
+
+    /**
+     * Reception
+     */
+    const receptionRole = new Role(ROLE_TYPES.RECEPTION);
+    roles.push(receptionRole);
 
     await this.dataSource.manager.save(roles);
     return roles;
