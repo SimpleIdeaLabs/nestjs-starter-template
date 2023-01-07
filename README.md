@@ -18,7 +18,7 @@
 an api boilerplate build with nestjs that comes with out of the box common features that are essential, like dockerized app, TDD e2e, logging, login, etc.
 
 ### Pre-requisites
-1. NodeJS - v18.7.0
+1. NodeJS - v18.13.0
 2. Docker
 
 ### Get Started
