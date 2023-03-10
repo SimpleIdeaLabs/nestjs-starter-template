@@ -44,9 +44,8 @@ const typeormModule = TypeOrmModule.forRoot({
       ? __dirname + '/../**/*.entity{.ts,.js}'
       : __dirname + '/../**/*.entity.js',
   ],
-
   migrations: ['./dist/common/modules/database/migrations/*.js'],
-  synchronize: true,
+  synchronize: process.env.ENV === ENV.DEVELOP,
   logging: true,
   migrationsTableName: 'sys_migrations',
 });
