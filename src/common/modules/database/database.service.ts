@@ -18,7 +18,7 @@ export class DatabaseService {
   public async setUp() {
     const env = this.configService.get('env');
     if (await this.hasBeenSetUp()) {
-      this.myLogger.log('Previous setup detected, skippung setup...');
+      this.myLogger.log('Previous setup detected, skipping setup...');
       return;
     }
 

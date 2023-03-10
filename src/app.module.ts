@@ -46,7 +46,7 @@ const typeormModule = TypeOrmModule.forRoot({
   ],
   migrations: ['./dist/common/modules/database/migrations/*.js'],
   synchronize: process.env.ENV === ENV.DEVELOP,
-  logging: true,
+  logging: process.env.ENABLE_LOGGING === 'true',
   migrationsTableName: 'sys_migrations',
 });
 

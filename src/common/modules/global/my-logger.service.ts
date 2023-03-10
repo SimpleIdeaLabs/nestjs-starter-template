@@ -20,48 +20,66 @@ export class MyLoggerService implements LoggerService {
   // env
   env: ENV;
 
+  // enable logging
+  enableLogging: boolean;
+
   constructor(
     private readonly configService: ConfigService,
     private readonly utilService: UtilService,
   ) {
     const mongoDbTransports = winston.transports as any;
     this.env = this.configService.get('env');
+    this.enableLogging = this.configService.get<boolean>('enableLogging');
 
     // initialize app logger
+    const defaultLoggerTransports = this.enableLogging
+      ? [
+          new winston.transports.Console({
+            format: winston.format.prettyPrint(),
+          }),
+          new mongoDbTransports['MongoDB']({
+            db: this.configService.get<string>('mongodb'),
+            collection: APP_LOG_COLLECTION,
+            capped: false,
+          }),
+        ]
+      : [
+          new winston.transports.Console({
+            format: winston.format.prettyPrint(),
+          }),
+        ];
     this.defaultLogger = winston.createLogger({
       format: winston.format.simple(),
-      transports: [
-        new winston.transports.Console({
-          format: winston.format.prettyPrint(),
-        }),
-        new mongoDbTransports['MongoDB']({
-          db: this.configService.get<string>('mongodb'),
-          collection: APP_LOG_COLLECTION,
-          capped: false,
-        }),
-      ],
+      transports: defaultLoggerTransports,
     });
 
     // initialize api logger
+    const apiLoggerTransports = this.enableLogging
+      ? [
+          new winston.transports.Console({
+            format: winston.format.prettyPrint(),
+          }),
+          new mongoDbTransports['MongoDB']({
+            db: this.configService.get<string>('mongodb'),
+            collection: API_LOG_COLLECTION,
+            capped: false,
+          }),
+        ]
+      : [
+          new winston.transports.Console({
+            format: winston.format.prettyPrint(),
+          }),
+        ];
     this.apiLogger = winston.createLogger({
       format: winston.format.simple(),
-      transports: [
-        new winston.transports.Console({
-          format: winston.format.prettyPrint(),
-        }),
-        new mongoDbTransports['MongoDB']({
-          db: this.configService.get<string>('mongodb'),
-          collection: API_LOG_COLLECTION,
-          capped: false,
-        }),
-      ],
+      transports: apiLoggerTransports,
     });
   }
 
   /**
    * Wrote a 'log' level log for API Requests
    */
-  apiLog(message: any, metadata: any) {
+  apiLog(message: any, metadata?: any) {
     this.apiLogger.info(message, {
       metadata,
     });
@@ -70,7 +88,7 @@ export class MyLoggerService implements LoggerService {
   /**
    * Wrote a 'error' level log for API Requests
    */
-  apiError(message: any, metadata: any) {
+  apiError(message: any, metadata?: any) {
     this.apiLogger.error(message, { metadata });
   }
 
