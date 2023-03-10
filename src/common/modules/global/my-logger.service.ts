@@ -91,7 +91,7 @@ export class MyLoggerService implements LoggerService {
   /**
    * Write an 'error' level log.
    */
-  error(message: any, metadata: any) {
+  error(message: any, metadata?: any) {
     if (this.env === 'TEST') return;
     this.defaultLogger.error(message, {
       metadata: {
