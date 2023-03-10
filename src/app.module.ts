@@ -22,6 +22,7 @@ import { PatientModule } from './modules/patient/patient.module';
 import { IsPatientExistsConstraint } from './common/validators/patient-exists.validator';
 import { GlobalModule } from './common/modules/global/global.module';
 import { RequestIdMiddleware } from './common/middlewares/request-id/request-id.middleware';
+import { OperationModule } from './modules/operation/operation.module';
 
 // config
 const configModule = ConfigModule.forRoot({
@@ -59,6 +60,7 @@ const typeormModule = TypeOrmModule.forRoot({
     SystemModule,
     PatientModule,
     GlobalModule,
+    OperationModule,
   ],
   controllers: [Appv2Controller],
   providers: [AppService, IsRoleExistsConstraint, IsPatientExistsConstraint],
