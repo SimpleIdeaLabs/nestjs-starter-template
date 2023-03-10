@@ -7,6 +7,7 @@ import {
   APP_LOG_COLLECTION,
 } from '../../config/my-logger.constants';
 import { UtilService } from './util.service';
+import { ENV } from '../../constants/constants';
 
 @Injectable()
 export class MyLoggerService implements LoggerService {
@@ -17,7 +18,7 @@ export class MyLoggerService implements LoggerService {
   apiLogger: winston.Logger;
 
   // env
-  env: string;
+  env: ENV;
 
   constructor(
     private readonly configService: ConfigService,
@@ -61,7 +62,6 @@ export class MyLoggerService implements LoggerService {
    * Wrote a 'log' level log for API Requests
    */
   apiLog(message: any, metadata: any) {
-    if (this.env === 'TEST') return;
     this.apiLogger.info(message, {
       metadata,
     });
@@ -71,7 +71,6 @@ export class MyLoggerService implements LoggerService {
    * Wrote a 'error' level log for API Requests
    */
   apiError(message: any, metadata: any) {
-    if (this.env === 'TEST') return;
     this.apiLogger.error(message, { metadata });
   }
 
@@ -79,7 +78,6 @@ export class MyLoggerService implements LoggerService {
    * Write a 'log' level log.
    */
   log(message: any, metadata?: any) {
-    if (this.env === 'TEST') return;
     this.defaultLogger.info(message, {
       metadata: {
         requestId: this.utilService.getRequestId(),
@@ -92,7 +90,6 @@ export class MyLoggerService implements LoggerService {
    * Write an 'error' level log.
    */
   error(message: any, metadata?: any) {
-    if (this.env === 'TEST') return;
     this.defaultLogger.error(message, {
       metadata: {
         requestId: this.utilService.getRequestId(),
@@ -105,7 +102,6 @@ export class MyLoggerService implements LoggerService {
    * Write a 'warn' level log.
    */
   warn(message: any, metadata?: any) {
-    if (this.env === 'TEST') return;
     this.defaultLogger.warn(message, {
       metadata: {
         requestId: this.utilService.getRequestId(),
@@ -118,7 +114,6 @@ export class MyLoggerService implements LoggerService {
    * Write a 'debug' level log.
    */
   debug?(message: any, metadata?: any) {
-    if (this.env === 'TEST') return;
     this.defaultLogger.debug(message, {
       metadata: {
         requestId: this.utilService.getRequestId(),
@@ -131,7 +126,6 @@ export class MyLoggerService implements LoggerService {
    * Write a 'verbose' level log.
    */
   verbose?(message: any, metadata?: any) {
-    if (this.env === 'TEST') return;
     this.defaultLogger.verbose(message, {
       metadata: {
         requestId: this.utilService.getRequestId(),

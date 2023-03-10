@@ -23,6 +23,7 @@ import { IsPatientExistsConstraint } from './common/validators/patient-exists.va
 import { GlobalModule } from './common/modules/global/global.module';
 import { RequestIdMiddleware } from './common/middlewares/request-id/request-id.middleware';
 import { OperationModule } from './modules/operation/operation.module';
+import { ENV } from './common/constants/constants';
 
 // config
 const configModule = ConfigModule.forRoot({
@@ -39,7 +40,7 @@ const typeormModule = TypeOrmModule.forRoot({
   password: process.env.MYSQL_ROOT_PASSWORD,
   database: process.env.MYSQL_DATABASE,
   entities: [
-    process.env.ENV === 'TEST'
+    process.env.ENV === ENV.TEST
       ? __dirname + '/../**/*.entity{.ts,.js}'
       : __dirname + '/../**/*.entity.js',
   ],

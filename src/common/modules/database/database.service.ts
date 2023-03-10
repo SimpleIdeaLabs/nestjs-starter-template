@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 import { System } from '../../../modules/system/system.entity';
 import { MyLoggerService } from '../global/my-logger.service';
 import { Seeding } from './seeding/seeding';
+import { ENV } from '../../constants/constants';
 
 @Injectable()
 export class DatabaseService {
@@ -26,7 +27,7 @@ export class DatabaseService {
     /**
      * Reset Database
      */
-    if (env === 'DEVELOP') {
+    if (env === ENV.DEVELOP) {
       await this.resetDatabase();
     }
 
@@ -68,7 +69,7 @@ export class DatabaseService {
   public async resetDatabase() {
     this.myLogger.log('Staring database reset...');
     const env = this.configService.get('env');
-    if (env === 'DEVELOP' || env === 'TESTING') {
+    if (env === ENV.DEVELOP || env === ENV.TEST) {
       /**
        * Synchronize DB
        */
