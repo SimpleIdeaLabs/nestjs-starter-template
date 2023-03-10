@@ -18,7 +18,7 @@
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "jest --config ./test/jest-e2e.json --forceExit --detectOpenHandles",
+        "test:e2e": "docker exec -it -e ENABLE_LOGGING=false -e ENV=TEST api-service ./node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --forceExit --detectOpenHandles",
         "ncu": "npx npm-check-updates -u --enginesNode"
     },
     "dependencies": {

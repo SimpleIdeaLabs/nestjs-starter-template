@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { AuthorizedRoles } from '../../common/decorators/authorized-roles.decorator';
 import { ApiResponse } from '../../common/dtos/api-response';
@@ -15,6 +23,7 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Post('/login')
+  @HttpCode(HttpStatus.OK)
   async login(@Req() req: Request) {
     const response = await this.userService.login(req.body);
     return response;
