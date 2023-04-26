@@ -24,6 +24,10 @@ import { GlobalModule } from './common/modules/global/global.module';
 import { RequestIdMiddleware } from './common/middlewares/request-id/request-id.middleware';
 import { OperationModule } from './modules/operation/operation.module';
 import { ENV } from './common/constants/constants';
+import { IsRoleUniqueConstraint } from './common/validators/role-is-unique.validator';
+import { IsUserEmailUniqueConstraint } from './common/validators/user-email-is-unique.validator';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 // config
 const configModule = ConfigModule.forRoot({
@@ -63,7 +67,13 @@ const typeormModule = TypeOrmModule.forRoot({
     OperationModule,
   ],
   controllers: [Appv2Controller],
-  providers: [AppService, IsRoleExistsConstraint, IsPatientExistsConstraint],
+  providers: [
+    AppService,
+    IsRoleExistsConstraint,
+    IsPatientExistsConstraint,
+    IsRoleUniqueConstraint,
+    IsUserEmailUniqueConstraint,
+  ],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}
@@ -79,7 +89,7 @@ export class AppModule {
 }
 
 export const getAppInstance = async () => {
-  const _app = await NestFactory.create(AppModule);
+  const _app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   /**
    * Allow NestJS Dependency Injector
@@ -97,6 +107,11 @@ export const getAppInstance = async () => {
    * Enable CORS
    */
   _app.enableCors();
+
+  /**
+   * Public uploads
+   */
+  _app.useStaticAssets(join(__dirname, '..', 'uploads'));
 
   /**
    * Enable API Versioning

@@ -13,25 +13,25 @@ export class RolesSeeding {
     /**
      * Super Admin Role
      */
-    const superAdminRole = new Role(ROLE_TYPES.SUPER_ADMIN);
+    const superAdminRole = new Role(ROLE_TYPES.SUPER_ADMIN, 'Super Admin');
     roles.push(superAdminRole);
 
     /**
      * PMS Admin Role
      */
-    const adminRole = new Role(ROLE_TYPES.PMS_ADMIN);
+    const adminRole = new Role(ROLE_TYPES.PMS_ADMIN, 'PMS Admin');
     roles.push(adminRole);
 
     /**
      * Cashier
      */
-    const cashierRole = new Role(ROLE_TYPES.CASHIER);
+    const cashierRole = new Role(ROLE_TYPES.CASHIER, 'Cashier');
     roles.push(cashierRole);
 
     /**
      * Reception
      */
-    const receptionRole = new Role(ROLE_TYPES.RECEPTION);
+    const receptionRole = new Role(ROLE_TYPES.RECEPTION, 'Reception');
     roles.push(receptionRole);
 
     await this.dataSource.manager.save(roles);

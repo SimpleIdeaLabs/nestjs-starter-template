@@ -19,7 +19,7 @@ export class AuthorizedGuard {
       }
       const request = context.switchToHttp().getRequest();
       const user = request.user;
-      const userRoles = user.roles.map((r: any) => r.name);
+      const userRoles = user.roles.map((r: any) => r.key);
       const intersect = lodash.intersection(roles, userRoles);
       return intersect.length > 0;
     } catch (error) {

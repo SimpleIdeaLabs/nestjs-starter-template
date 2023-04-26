@@ -30,6 +30,9 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Column({ nullable: true })
+  profilePhoto: string;
+
   @Column()
   firstName: string;
 
@@ -56,7 +59,7 @@ export class User {
   @Column({ default: false })
   deleted: boolean;
 
-  @ManyToMany(() => Role)
+  @ManyToMany(() => Role, (role) => role.users)
   @JoinTable()
   roles: Role[];
 
@@ -77,6 +80,7 @@ export class User {
   public toJSON() {
     return {
       id: this.id,
+      profilePhoto: this.profilePhoto,
       firstName: this.firstName,
       lastName: this.lastName,
       email: this.email,

@@ -13,6 +13,18 @@ export const MAX_PATIENT_PHOTOS_PER_UPLOAD = 5;
 export const MAX_PATIENT_DOCUMENTS_PER_UPLOAD = 10;
 
 /**
+ * Profile Photos
+ */
+export const profilePhotosStorage = diskStorage({
+  destination: './uploads/profile-photos',
+  filename: (req, file, cb) => {
+    const fileName = v4();
+    const fileExt = path.extname(file.originalname);
+    cb(null, `${fileName}${fileExt}`);
+  },
+});
+
+/**
  * Patient Photos Destination
  */
 export const patientPhotosStorage = diskStorage({

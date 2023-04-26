@@ -12,7 +12,7 @@ export class UsersSeeding {
     const users = [];
     const superAdminRole = await this.dataSource.manager.findOne(Role, {
       where: {
-        name: ROLE_TYPES.SUPER_ADMIN,
+        key: ROLE_TYPES.SUPER_ADMIN,
       },
     });
 
@@ -32,7 +32,7 @@ export class UsersSeeding {
      */
     const pmsAdminRole = await this.dataSource.manager.findOne(Role, {
       where: {
-        name: ROLE_TYPES.PMS_ADMIN,
+        key: ROLE_TYPES.PMS_ADMIN,
       },
     });
     const pmsAdmin = new User();

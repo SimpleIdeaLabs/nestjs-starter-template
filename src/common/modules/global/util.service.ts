@@ -24,4 +24,9 @@ export class UtilService {
     const { page, limit } = params;
     return (page > 0 ? page - 1 : 0) * limit;
   }
+
+  public getTotalNumberOfPages(params: { total: number; limit: number }) {
+    const { limit, total } = params;
+    return Math.ceil(total / limit);
+  }
 }
