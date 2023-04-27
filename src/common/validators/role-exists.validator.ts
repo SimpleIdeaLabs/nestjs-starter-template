@@ -15,6 +15,9 @@ export class IsRoleExistsConstraint implements ValidatorConstraintInterface {
   constructor(private readonly dataSource: DataSource) {}
 
   validate(roles: Role[], args: ValidationArguments) {
+    if (!roles || (roles && !roles.length)) {
+      return false;
+    }
     const roleIds = roles.map((r) => r.id);
     return this.dataSource.manager
       .count(Role, {

@@ -90,7 +90,9 @@ export class LoginUserResponse {
  * Create User Params
  */
 export class CreateUserParams extends UserData {
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: 'Profile photo is required.',
+  })
   profilePhoto: Express.Multer.File;
 
   @IsNotEmpty({
