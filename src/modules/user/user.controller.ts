@@ -41,13 +41,53 @@ export class UserController {
   /**
    * Current User session
    */
-  @Get('/session')
+  @Get('/current')
   @UseGuards(AuthenticatedGuard)
   async session(@Req() req: Request) {
     const response = new ApiResponse();
     response.status = true;
     response.message = 'User active session';
     response.data = req.user;
+    return response;
+  }
+
+  /**
+   * Update Current User
+   */
+  @Patch('/current')
+  @UseInterceptors(
+    FileInterceptor('profilePhoto', {
+      storage: profilePhotosStorage,
+    }),
+  )
+  @AuthorizedRoles(ROLE_TYPES.SUPER_ADMIN, ROLE_TYPES.PMS_ADMIN)
+  @UseGuards(AuthenticatedGuard, AuthorizedGuard)
+  public async updateCurrentUser(
+    @Req() req: Request,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const response = await this.userService.updateCurrentUser({
+      ...req.body,
+      ...req.query,
+      ...req.params,
+      userId: req.user.id,
+      profilePhoto: file,
+      currentUser: req.user,
+    });
+    return response;
+  }
+
+  @Patch('/current/password')
+  @AuthorizedRoles(ROLE_TYPES.SUPER_ADMIN, ROLE_TYPES.PMS_ADMIN)
+  @UseGuards(AuthenticatedGuard, AuthorizedGuard)
+  public async updateCurrentUserPassword(@Req() req: Request) {
+    const response = await this.userService.updateCurrentUserPassword({
+      ...req.body,
+      ...req.query,
+      ...req.params,
+      userId: req.user.id,
+      currentUser: req.user,
+    });
     return response;
   }
 

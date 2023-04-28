@@ -42,15 +42,6 @@ class UserData {
   @IsUserEmailUnique()
   email: string;
 
-  @IsArray({
-    message: 'Roles must be an array',
-  })
-  @ArrayNotEmpty({
-    message: 'Roles is required',
-  })
-  @IsRoleExists()
-  roles: Role[];
-
   @IsNotEmpty()
   currentUser: User;
 }
@@ -107,6 +98,15 @@ export class CreateUserParams extends UserData {
     message: 'Confirm your password',
   })
   confirmPassword: string;
+
+  @IsArray({
+    message: 'Roles must be an array',
+  })
+  @ArrayNotEmpty({
+    message: 'Roles is required',
+  })
+  @IsRoleExists()
+  roles: Role[];
 }
 
 /**
@@ -132,12 +132,73 @@ export class UpdateUserParams extends UserData {
 
   @IsOptional()
   confirmPassword: string;
+
+  @IsArray({
+    message: 'Roles must be an array',
+  })
+  @ArrayNotEmpty({
+    message: 'Roles is required',
+  })
+  @IsRoleExists()
+  roles: Role[];
 }
 
 /**
  * Update User Response
  */
 export class UpdateUserResponse {}
+
+/**
+ * Update Current User Params
+ */
+export class UpdateCurrentUserParams extends UserData {
+  @IsNotEmpty()
+  userId: number;
+
+  @IsOptional()
+  profilePhoto: Express.Multer.File;
+}
+
+/**
+ * Update Current User Response
+ */
+export class UpdateCurrentUserResponse {}
+
+/**
+ * Update current
+ * User Password Params
+ */
+export class UpdateCurrentUserPasswordParams {
+  @IsNotEmpty()
+  userId: number;
+
+  @IsNotEmpty({
+    message: 'Password is required',
+  })
+  password: string;
+
+  @IsNotEmpty({
+    message: 'Confirm your password',
+  })
+  @Match('password', {
+    message: 'Confirm your password',
+  })
+  confirmPassword: string;
+
+  @IsNotEmpty({
+    message: 'Current password is required.',
+  })
+  currentPassword: string;
+
+  @IsNotEmpty()
+  currentUser: User;
+}
+
+/**
+ * Update current
+ * User Password Response
+ */
+export class UpdateCurrentUserPasswordResponse {}
 
 /**
  * List User Params

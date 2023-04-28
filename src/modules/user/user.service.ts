@@ -21,6 +21,8 @@ import {
   LoginUserResponse,
   ReadUserParams,
   ReadUserResponse,
+  UpdateCurrentUserParams,
+  UpdateCurrentUserPasswordParams,
   UpdateUserParams,
 } from './user.dto';
 import { User } from './user.entity';
@@ -248,8 +250,6 @@ export class UserService {
       profilePhoto,
     } = updateUserParams;
 
-    console.log('roles >>', roles);
-
     // get user
     const user = await this.dataSource.manager.findOne(User, {
       where: {
@@ -280,6 +280,116 @@ export class UserService {
 
     response.status = true;
     response.message = `${firstName} ${lastName} user updated`;
+    response.data = user;
+
+    return response;
+  }
+
+  /**
+   * Update Current User
+   */
+  public async updateCurrentUser(
+    params: UpdateCurrentUserParams,
+  ): Promise<ApiResponse<User>> {
+    const response = new ApiResponse<User>();
+    const updateUserParams = plainToClass(UpdateCurrentUserParams, params);
+    const validationErrors = await validateAndExtract(updateUserParams);
+
+    // validation
+    if (!validationErrors.isValid) {
+      response.status = false;
+      response.message = 'Invalid parameters, check input';
+      response.validationErrors = validationErrors.errors;
+      throw new BadRequestException(response, ERROR_TITLES.VALIDATION_ERROR);
+    }
+
+    // params
+    const { userId, email, firstName, lastName, currentUser, profilePhoto } =
+      updateUserParams;
+
+    // get user
+    const user = await this.dataSource.manager.findOne(User, {
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      response.status = false;
+      response.message = 'User not found.';
+      throw new NotFoundException(response, ERROR_TITLES.NON_FOUND_ERROR);
+    }
+
+    // update user
+    if (profilePhoto) {
+      user.profilePhoto = profilePhoto.filename;
+    }
+    user.email = email;
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.updatedAt = new Date();
+    user.updatedBy = currentUser;
+    await this.dataSource.manager.save(user);
+
+    response.status = true;
+    response.message = `${firstName} ${lastName} user updated`;
+    response.data = user;
+
+    return response;
+  }
+
+  /**
+   * Update Current
+   * User Password
+   */
+  public async updateCurrentUserPassword(
+    params: UpdateCurrentUserPasswordParams,
+  ): Promise<ApiResponse<User>> {
+    const response = new ApiResponse<User>();
+    const updateUserParams = plainToClass(
+      UpdateCurrentUserPasswordParams,
+      params,
+    );
+    const validationErrors = await validateAndExtract(updateUserParams);
+
+    // validation
+    if (!validationErrors.isValid) {
+      response.status = false;
+      response.message = 'Invalid parameters, check input';
+      response.validationErrors = validationErrors.errors;
+      throw new BadRequestException(response, ERROR_TITLES.VALIDATION_ERROR);
+    }
+
+    // params
+    const { userId, password, currentPassword, currentUser } = updateUserParams;
+
+    // get user
+    const user = await this.dataSource.manager.findOne(User, {
+      where: {
+        id: userId,
+      },
+    });
+
+    // check password
+    if (!user || !user.doesPasswordMatch(currentPassword)) {
+      response.data = null;
+      response.message = 'Invalid login old password.';
+      response.status = false;
+      throw new UnauthorizedException(
+        response,
+        ERROR_TITLES.UNAUTHORIZED_ERROR,
+      );
+    }
+
+    // update password
+    user.password = password;
+    user.updatedAt = new Date();
+    user.updatedBy = currentUser;
+    await this.dataSource.manager.save(user);
+
+    // response
+    response.status = true;
+    response.message = `${user.firstName} ${user.lastName} user password updated.`;
     response.data = user;
 
     return response;
@@ -323,9 +433,6 @@ export class UserService {
       .limit(limit)
       .offset(skip)
       .where('1 = 1')
-      .andWhere('user.id != :currentUserId', {
-        currentUserId: currentUser.id,
-      })
       .orderBy('user.id', 'DESC');
 
     /**
