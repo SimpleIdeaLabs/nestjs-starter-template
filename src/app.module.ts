@@ -28,6 +28,8 @@ import { IsRoleUniqueConstraint } from './common/validators/role-is-unique.valid
 import { IsUserEmailUniqueConstraint } from './common/validators/user-email-is-unique.validator';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { StoreModule } from './modules/store/store.module';
+import { PhDataController } from './common/controllers/ph-data/ph-data.controller';
 
 // config
 const configModule = ConfigModule.forRoot({
@@ -65,8 +67,9 @@ const typeormModule = TypeOrmModule.forRoot({
     PatientModule,
     GlobalModule,
     OperationModule,
+    StoreModule,
   ],
-  controllers: [Appv2Controller],
+  controllers: [Appv2Controller, PhDataController],
   providers: [
     AppService,
     IsRoleExistsConstraint,

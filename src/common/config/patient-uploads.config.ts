@@ -47,3 +47,15 @@ export const patientDocsStorage = diskStorage({
     cb(null, `${fileName}${fileExt}`);
   },
 });
+
+/*
+ * Patient Docs Destination
+ */
+export const storeFilesStorage = diskStorage({
+  destination: './uploads/store',
+  filename: (req, file, cb) => {
+    const fileName = v4();
+    const fileExt = path.extname(file.originalname);
+    cb(null, `${fileName}${fileExt}`);
+  },
+});
