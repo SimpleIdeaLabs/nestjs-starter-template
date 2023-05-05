@@ -3,6 +3,7 @@ import { MyLoggerService } from '../../global/my-logger.service';
 import { RolesSeeding } from './roles';
 import { UsersSeeding } from './users';
 import { StoreSeeding } from './store';
+import { ServicesSeeding } from './service';
 
 @Injectable()
 export class Seeding {
@@ -10,6 +11,7 @@ export class Seeding {
     private readonly roleSeeding: RolesSeeding,
     private readonly userSeeding: UsersSeeding,
     private readonly storeSeeding: StoreSeeding,
+    private readonly serviceSeeding: ServicesSeeding,
     private readonly myLoggerService: MyLoggerService,
   ) {}
 
@@ -18,5 +20,6 @@ export class Seeding {
     await this.roleSeeding.seed();
     await this.userSeeding.seed();
     await this.storeSeeding.seed();
+    await this.serviceSeeding.seed();
   }
 }

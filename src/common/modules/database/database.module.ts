@@ -4,6 +4,7 @@ import { RolesSeeding } from './seeding/roles';
 import { Seeding } from './seeding/seeding';
 import { UsersSeeding } from './seeding/users';
 import { StoreSeeding } from './seeding/store';
+import { ServicesSeeding } from './seeding/service';
 
 @Global()
 @Module({
@@ -13,6 +14,7 @@ import { StoreSeeding } from './seeding/store';
     UsersSeeding,
     RolesSeeding,
     StoreSeeding,
+    ServicesSeeding,
   ],
 })
 export class DatabaseModule {}

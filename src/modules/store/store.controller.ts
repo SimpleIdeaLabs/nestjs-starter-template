@@ -13,10 +13,7 @@ import { AuthorizedGuard } from '../../common/guards/authorized.guard';
 import { ROLE_TYPES } from '../user/role.contants';
 import { StoreService } from './store.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  profilePhotosStorage,
-  storeFilesStorage,
-} from '../../common/config/patient-uploads.config';
+import { storeFilesStorage } from '../../common/config/patient-uploads.config';
 import { Request } from 'express';
 
 @Controller({

@@ -30,6 +30,8 @@ import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { StoreModule } from './modules/store/store.module';
 import { PhDataController } from './common/controllers/ph-data/ph-data.controller';
+import { ServiceModule } from './modules/service/service.module';
+import { IsValueUniqueConstraint } from './common/validators/is-value-unique';
 
 // config
 const configModule = ConfigModule.forRoot({
@@ -68,6 +70,7 @@ const typeormModule = TypeOrmModule.forRoot({
     GlobalModule,
     OperationModule,
     StoreModule,
+    ServiceModule,
   ],
   controllers: [Appv2Controller, PhDataController],
   providers: [
@@ -76,6 +79,7 @@ const typeormModule = TypeOrmModule.forRoot({
     IsPatientExistsConstraint,
     IsRoleUniqueConstraint,
     IsUserEmailUniqueConstraint,
+    IsValueUniqueConstraint,
   ],
 })
 export class AppModule {
