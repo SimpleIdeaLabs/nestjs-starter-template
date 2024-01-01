@@ -282,6 +282,11 @@ export class PatientService {
       pagination: {
         total: Number(total),
         page: Number(page),
+        totalNumberOfPages: this.utilService.getTotalNumberOfPages({
+          total: Number(total),
+          limit,
+        }),
+        limit,
       },
     };
     response.status = true;

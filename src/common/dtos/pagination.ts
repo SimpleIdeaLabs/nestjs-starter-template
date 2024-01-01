@@ -14,5 +14,7 @@ export class PaginatedParams {
 
 export class PaginatedResponse {
   page: number;
+  totalNumberOfPages: number;
   total: number;
+  limit: number;
 }

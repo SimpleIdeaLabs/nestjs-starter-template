@@ -6,41 +6,48 @@ import {
   ValidatorConstraintInterface,
   ValidationArguments,
 } from 'class-validator';
-import { DataSource, In } from 'typeorm';
-import { Role } from '../../modules/user/role.entity';
+import { DataSource, Not } from 'typeorm';
+import * as _ from 'lodash';
+import { User } from '../../modules/user/user.entity';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class IsRoleExistsConstraint implements ValidatorConstraintInterface {
+export class IsUserEmailUniqueConstraint
+  implements ValidatorConstraintInterface
+{
   constructor(private readonly dataSource: DataSource) {}
 
-  validate(roles: Role[], args: ValidationArguments) {
-    if (!roles || (roles && !roles.length)) {
-      return false;
+  validate(email: string, args: ValidationArguments) {
+    const userId = _.get(args, 'object.userId', null);
+
+    const where = {
+      email,
+    };
+
+    if (userId) {
+      where['id'] = Not(+userId);
     }
-    const roleIds = roles.map((r) => r.id);
+
     return this.dataSource.manager
-      .count(Role, {
-        where: {
-          id: In(roleIds),
-        },
+      .count(User, {
+        where,
       })
-      .then((count) => count === roles.length);
+      .then((count) => count === 0);
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {
-    return 'Invalid role or roles';
+    return 'Email already used.';
   }
 }
 
-export function IsRoleExists(validationOptions?: ValidationOptions) {
+export function IsUserEmailUnique(validationOptions?: ValidationOptions) {
   return function (object: unknown, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
       constraints: [],
-      validator: IsRoleExistsConstraint,
+      validator: IsUserEmailUniqueConstraint,
     });
   };
 }

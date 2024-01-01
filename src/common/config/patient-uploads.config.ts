@@ -13,6 +13,30 @@ export const MAX_PATIENT_PHOTOS_PER_UPLOAD = 5;
 export const MAX_PATIENT_DOCUMENTS_PER_UPLOAD = 10;
 
 /**
+ * Services Photos
+ */
+export const servicesPhotosStorage = diskStorage({
+  destination: './uploads/services',
+  filename: (req, file, cb) => {
+    const fileName = v4();
+    const fileExt = path.extname(file.originalname);
+    cb(null, `${fileName}${fileExt}`);
+  },
+});
+
+/**
+ * Profile Photos
+ */
+export const profilePhotosStorage = diskStorage({
+  destination: './uploads/profile-photos',
+  filename: (req, file, cb) => {
+    const fileName = v4();
+    const fileExt = path.extname(file.originalname);
+    cb(null, `${fileName}${fileExt}`);
+  },
+});
+
+/**
  * Patient Photos Destination
  */
 export const patientPhotosStorage = diskStorage({
@@ -29,6 +53,18 @@ export const patientPhotosStorage = diskStorage({
  */
 export const patientDocsStorage = diskStorage({
   destination: './uploads/patient/documents',
+  filename: (req, file, cb) => {
+    const fileName = v4();
+    const fileExt = path.extname(file.originalname);
+    cb(null, `${fileName}${fileExt}`);
+  },
+});
+
+/*
+ * Patient Docs Destination
+ */
+export const storeFilesStorage = diskStorage({
+  destination: './uploads/store',
   filename: (req, file, cb) => {
     const fileName = v4();
     const fileExt = path.extname(file.originalname);

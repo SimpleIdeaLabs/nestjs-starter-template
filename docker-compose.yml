@@ -5,12 +5,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: 'yarn start:debug'
+    command: 'npm run start:debug'
     restart: always
     env_file:
       - .env
     ports:
-      - '3001:3001'
+      - '3002:3002'
       - '9229:9229'
     volumes:
       - ./:/app
@@ -26,7 +26,7 @@ services:
     image: 'mongo:4.0'
     container_name: api-service-mongo
     ports:
-      - '5300:27017'
+      - '5333:27017'
     volumes:
       - './.data/mongo:/data/db'
       - './.data/mongoconfigdb:/data/configdb'
@@ -38,6 +38,6 @@ services:
     volumes:
       - './.data/mysql:/var/lib/mysql'
     ports:
-      - '5301:3306'
+      - '5334:3306'
     env_file:
       - .env

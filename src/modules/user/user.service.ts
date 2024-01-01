@@ -1,7 +1,7 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
@@ -14,12 +14,19 @@ import { UtilService } from '../../common/modules/global/util.service';
 
 import {
   CreateUserParams,
+  DeleteUserParams,
   ListUserParams,
   ListUserResponse,
   LoginUserParams,
   LoginUserResponse,
+  ReadUserParams,
+  ReadUserResponse,
+  UpdateCurrentUserParams,
+  UpdateCurrentUserPasswordParams,
+  UpdateUserParams,
 } from './user.dto';
 import { User } from './user.entity';
+import { Role } from './role.entity';
 
 @Injectable()
 export class UserService {
@@ -137,19 +144,28 @@ export class UserService {
     }
 
     // params
-    const { email, password, firstName, lastName, roles, currentUser } =
-      createUserParams;
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
+      roles,
+      currentUser,
+      profilePhoto,
+    } = createUserParams;
 
     // create user
     const user = new User();
     user.email = email;
     user.password = password;
+    user.profilePhoto = profilePhoto.filename;
     user.firstName = firstName;
     user.lastName = lastName;
     user.roles = roles;
     user.createdBy = currentUser;
     user.updatedBy = currentUser;
 
+    // save user
     await this.dataSource.manager.save(user);
 
     // response
@@ -166,9 +182,223 @@ export class UserService {
   }
 
   /**
-   * List Users
+   * Read User
    */
   public async read(
+    params: ReadUserParams,
+  ): Promise<ApiResponse<ReadUserResponse>> {
+    const response = new ApiResponse<ReadUserResponse>();
+    const readRoleResponse = plainToClass(ReadUserResponse, params);
+    const validationErrors = await validateAndExtract(readRoleResponse);
+
+    // validation
+    if (!validationErrors.isValid) {
+      response.status = false;
+      response.message = 'Invalid parameters, check input';
+      response.validationErrors = validationErrors.errors;
+      throw new BadRequestException(response, ERROR_TITLES.VALIDATION_ERROR);
+    }
+
+    // params
+    const { userId } = params;
+    const user = await this.dataSource.manager.findOne(User, {
+      where: {
+        id: userId,
+      },
+      relations: ['roles'],
+    });
+
+    if (!user) {
+      response.status = false;
+      response.message = 'User not found.';
+      throw new NotFoundException(response, ERROR_TITLES.NON_FOUND_ERROR);
+    }
+    response.status = true;
+    response.data = {
+      user,
+    };
+    response.message = 'User';
+
+    return response;
+  }
+
+  /**
+   * Update User
+   */
+  public async update(params: UpdateUserParams): Promise<ApiResponse<User>> {
+    const response = new ApiResponse<User>();
+    const updateUserParams = plainToClass(UpdateUserParams, params);
+    const validationErrors = await validateAndExtract(updateUserParams);
+
+    // validation
+    if (!validationErrors.isValid) {
+      response.status = false;
+      response.message = 'Invalid parameters, check input';
+      response.validationErrors = validationErrors.errors;
+      throw new BadRequestException(response, ERROR_TITLES.VALIDATION_ERROR);
+    }
+
+    // params
+    const {
+      userId,
+      email,
+      password = null,
+      firstName,
+      lastName,
+      roles,
+      currentUser,
+      profilePhoto,
+    } = updateUserParams;
+
+    // get user
+    const user = await this.dataSource.manager.findOne(User, {
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      response.status = false;
+      response.message = 'User not found.';
+      throw new NotFoundException(response, ERROR_TITLES.NON_FOUND_ERROR);
+    }
+
+    // update user
+    user.email = email;
+    if (password) {
+      user.password = password;
+    }
+    if (profilePhoto) {
+      user.profilePhoto = profilePhoto.filename;
+    }
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.roles = roles.map((r) => plainToClass(Role, { id: Number(r.id) }));
+    user.updatedAt = new Date();
+    user.updatedBy = currentUser;
+    await this.dataSource.manager.save(user);
+
+    response.status = true;
+    response.message = `${firstName} ${lastName} user updated`;
+    response.data = user;
+
+    return response;
+  }
+
+  /**
+   * Update Current User
+   */
+  public async updateCurrentUser(
+    params: UpdateCurrentUserParams,
+  ): Promise<ApiResponse<User>> {
+    const response = new ApiResponse<User>();
+    const updateUserParams = plainToClass(UpdateCurrentUserParams, params);
+    const validationErrors = await validateAndExtract(updateUserParams);
+
+    // validation
+    if (!validationErrors.isValid) {
+      response.status = false;
+      response.message = 'Invalid parameters, check input';
+      response.validationErrors = validationErrors.errors;
+      throw new BadRequestException(response, ERROR_TITLES.VALIDATION_ERROR);
+    }
+
+    // params
+    const { userId, email, firstName, lastName, currentUser, profilePhoto } =
+      updateUserParams;
+
+    // get user
+    const user = await this.dataSource.manager.findOne(User, {
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      response.status = false;
+      response.message = 'User not found.';
+      throw new NotFoundException(response, ERROR_TITLES.NON_FOUND_ERROR);
+    }
+
+    // update user
+    if (profilePhoto) {
+      user.profilePhoto = profilePhoto.filename;
+    }
+    user.email = email;
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.updatedAt = new Date();
+    user.updatedBy = currentUser;
+    await this.dataSource.manager.save(user);
+
+    response.status = true;
+    response.message = `${firstName} ${lastName} user updated`;
+    response.data = user;
+
+    return response;
+  }
+
+  /**
+   * Update Current
+   * User Password
+   */
+  public async updateCurrentUserPassword(
+    params: UpdateCurrentUserPasswordParams,
+  ): Promise<ApiResponse<User>> {
+    const response = new ApiResponse<User>();
+    const updateUserParams = plainToClass(
+      UpdateCurrentUserPasswordParams,
+      params,
+    );
+    const validationErrors = await validateAndExtract(updateUserParams);
+
+    // validation
+    if (!validationErrors.isValid) {
+      response.status = false;
+      response.message = 'Invalid parameters, check input';
+      response.validationErrors = validationErrors.errors;
+      throw new BadRequestException(response, ERROR_TITLES.VALIDATION_ERROR);
+    }
+
+    // params
+    const { userId, password, currentPassword, currentUser } = updateUserParams;
+
+    // get user
+    const user = await this.dataSource.manager.findOne(User, {
+      where: {
+        id: userId,
+      },
+    });
+
+    // check password
+    if (!user || !user.doesPasswordMatch(currentPassword)) {
+      response.data = null;
+      response.message = 'Invalid login old password.';
+      response.status = false;
+      throw new UnauthorizedException(
+        response,
+        ERROR_TITLES.UNAUTHORIZED_ERROR,
+      );
+    }
+
+    // update password
+    user.password = password;
+    user.updatedAt = new Date();
+    user.updatedBy = currentUser;
+    await this.dataSource.manager.save(user);
+
+    // response
+    response.status = true;
+    response.message = `${user.firstName} ${user.lastName} user password updated.`;
+    response.data = user;
+
+    return response;
+  }
+
+  /**
+   * List Users
+   */
+  public async list(
     params: ListUserParams,
   ): Promise<ApiResponse<ListUserResponse>> {
     const response = new ApiResponse<ListUserResponse>();
@@ -184,46 +414,117 @@ export class UserService {
     }
 
     // params
-    const { page = 1, limit = 10, roles = [] } = listUserParams;
+    const {
+      page = 1,
+      limit = 10,
+      role = [],
+      firstName = '',
+      lastName = '',
+      email = '',
+      currentUser,
+    } = listUserParams;
     let totalUsers = 0;
     let users = [];
     const skip = this.utilService.getSkipOffset({ limit, page });
 
     const userQuery = await this.dataSource.manager
       .createQueryBuilder(User, 'user')
+      .leftJoinAndSelect('user.roles', 'roles')
       .limit(limit)
       .offset(skip)
-      .where('1 = 1');
-
-    /**
-     * Optional Joins
-     */
-    if (roles.length) {
-      userQuery.innerJoin('user.roles', 'roles');
-    }
+      .where('1 = 1')
+      .orderBy('user.id', 'DESC');
 
     /**
      * Optional Wheres
      */
 
     // roles
-    if (roles.length) {
-      userQuery.andWhere('roles.name IN (:roles)', { roles });
+    if (role.length) {
+      userQuery.andWhere('roles.key IN (:role)', { role });
     }
 
+    // filters
+    if (firstName || lastName || email) {
+      // firstname
+      if (firstName) {
+        userQuery.andWhere('user.firstName LIKE :firstName', {
+          firstName: `%${firstName}%`,
+        });
+      }
+
+      // lastname
+      if (lastName) {
+        userQuery.andWhere('user.lastName LIKE :lastName', {
+          lastName: `%${lastName}%`,
+        });
+      }
+
+      // email
+      if (email) {
+        userQuery.andWhere('user.email LIKE :email', {
+          email: `%${email}%`,
+        });
+      }
+    }
+
+    // count
     totalUsers = await userQuery.getCount();
     users = await userQuery.getMany();
 
     // response
+    const total = Number(totalUsers);
     response.data = {
       users,
       pagination: {
-        total: Number(totalUsers),
+        total,
         page: Number(page),
+        totalNumberOfPages: this.utilService.getTotalNumberOfPages({
+          total,
+          limit,
+        }),
+        limit,
       },
     };
     response.status = true;
     response.message = `Get list of users`;
+    return response;
+  }
+
+  /**
+   * Delete User
+   */
+  public async delete(params: DeleteUserParams): Promise<ApiResponse<boolean>> {
+    const response = new ApiResponse<boolean>();
+    const deleteUserParams = plainToClass(DeleteUserParams, params);
+    const validationErrors = await validateAndExtract(deleteUserParams);
+
+    // validation
+    if (!validationErrors.isValid) {
+      response.status = false;
+      response.message = 'Invalid parameters, check input';
+      response.validationErrors = validationErrors.errors;
+      throw new BadRequestException(response, ERROR_TITLES.VALIDATION_ERROR);
+    }
+
+    // params
+    let { userId } = deleteUserParams;
+    userId = Number(userId);
+    const user = await this.dataSource.manager.findOne(User, {
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      response.status = false;
+      response.message = 'User not found.';
+      throw new NotFoundException(response, ERROR_TITLES.NON_FOUND_ERROR);
+    }
+
+    await this.dataSource.manager.remove(user);
+    response.message = `${user.firstName} ${user.lastName} successfully deleted.`;
+    response.data = true;
     return response;
   }
 }

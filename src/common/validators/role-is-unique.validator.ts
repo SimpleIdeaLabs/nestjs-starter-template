@@ -6,41 +6,46 @@ import {
   ValidatorConstraintInterface,
   ValidationArguments,
 } from 'class-validator';
-import { DataSource, In } from 'typeorm';
+import { DataSource, Not } from 'typeorm';
 import { Role } from '../../modules/user/role.entity';
+import * as _ from 'lodash';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class IsRoleExistsConstraint implements ValidatorConstraintInterface {
+export class IsRoleUniqueConstraint implements ValidatorConstraintInterface {
   constructor(private readonly dataSource: DataSource) {}
 
-  validate(roles: Role[], args: ValidationArguments) {
-    if (!roles || (roles && !roles.length)) {
-      return false;
+  validate(name: string, args: ValidationArguments) {
+    const roleId = _.get(args, 'object.roleId', null);
+
+    const where = {
+      name,
+    };
+
+    if (roleId) {
+      where['id'] = Not(+roleId);
     }
-    const roleIds = roles.map((r) => r.id);
+
     return this.dataSource.manager
       .count(Role, {
-        where: {
-          id: In(roleIds),
-        },
+        where,
       })
-      .then((count) => count === roles.length);
+      .then((count) => count === 0);
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {
-    return 'Invalid role or roles';
+    return 'Role name already used.';
   }
 }
 
-export function IsRoleExists(validationOptions?: ValidationOptions) {
+export function IsRoleUnique(validationOptions?: ValidationOptions) {
   return function (object: unknown, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
       constraints: [],
-      validator: IsRoleExistsConstraint,
+      validator: IsRoleUniqueConstraint,
     });
   };
 }
