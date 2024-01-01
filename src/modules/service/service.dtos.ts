@@ -45,7 +45,7 @@ class ServiceData {
   })
   @IsDecimal(
     {
-      decimal_digits: 2,
+      decimal_digits: '2',
     },
     {
       message: 'Price should be a valid number',

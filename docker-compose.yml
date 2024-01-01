@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: 'yarn start:debug'
+    command: 'npm run start:debug'
     restart: always
     env_file:
       - .env

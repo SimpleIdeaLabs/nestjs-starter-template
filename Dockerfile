@@ -1,18 +1,16 @@
-FROM node:18.13.0-bullseye
+FROM node:20.10.0-bullseye
 
 WORKDIR /app
 
 RUN apt-get update
 
-RUN npm install -g yarn --force
-
 RUN npm config set registry http://registry.npmjs.org
 
 ADD package.json /app/package.json
 
-ADD yarn.lock /app/yarn.lock
+ADD package-lock.json /app/package-lock.json
 
-RUN yarn
+RUN npm i
 
 ADD . /app
 

@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: 'yarn test:e2e'
+    command: 'npm run test:e2e'
     env_file:
       - .env
     ports:
