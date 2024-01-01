@@ -284,7 +284,7 @@ export class PatientService {
         page: Number(page),
         totalNumberOfPages: this.utilService.getTotalNumberOfPages({
           total: Number(total),
-          limit,
+          limit: Number(limit),
         }),
         limit,
       },
