@@ -6,32 +6,30 @@ import {
   VersioningType,
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AppService } from './common/modules/global/app.service';
-import { Appv2Controller } from './appv2/appv2.controller';
-import envConfig from './common/config/env.config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './modules/user/user.module';
-import { DataSource } from 'typeorm';
-import { DatabaseModule } from './common/modules/database/database.module';
 import { NestFactory } from '@nestjs/core';
-import { SystemModule } from './modules/system/system.module';
-import systemInfoInterceptor from './common/middlewares/request-id/system-info.interceptor';
-import { IsRoleExistsConstraint } from './common/validators/role-exists.validator';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { useContainer } from 'class-validator';
-import { PatientModule } from './modules/patient/patient.module';
-import { IsPatientExistsConstraint } from './common/validators/patient-exists.validator';
-import { GlobalModule } from './common/modules/global/global.module';
-import { RequestIdMiddleware } from './common/middlewares/request-id/request-id.middleware';
-import { OperationModule } from './modules/operation/operation.module';
+import { join } from 'path';
+import { DataSource } from 'typeorm';
+import envConfig from './common/config/env.config';
 import { ENV } from './common/constants/constants';
+import { RequestIdMiddleware } from './common/middlewares/request-id/request-id.middleware';
+import systemInfoInterceptor from './common/middlewares/request-id/system-info.interceptor';
+import { DatabaseModule } from './common/modules/database/database.module';
+import { AppService } from './common/modules/global/app.service';
+import { GlobalModule } from './common/modules/global/global.module';
+import { IsValueUniqueConstraint } from './common/validators/is-value-unique';
+import { IsPatientExistsConstraint } from './common/validators/patient-exists.validator';
+import { IsRoleExistsConstraint } from './common/validators/role-exists.validator';
 import { IsRoleUniqueConstraint } from './common/validators/role-is-unique.validator';
 import { IsUserEmailUniqueConstraint } from './common/validators/user-email-is-unique.validator';
-import { join } from 'path';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { StoreModule } from './modules/store/store.module';
-import { PhDataController } from './common/controllers/ph-data/ph-data.controller';
+import { OperationModule } from './modules/operation/operation.module';
+import { PatientModule } from './modules/patient/patient.module';
 import { ServiceModule } from './modules/service/service.module';
-import { IsValueUniqueConstraint } from './common/validators/is-value-unique';
+import { StoreModule } from './modules/store/store.module';
+import { SystemModule } from './modules/system/system.module';
+import { UserModule } from './modules/user/user.module';
 
 // config
 const configModule = ConfigModule.forRoot({
@@ -72,7 +70,7 @@ const typeormModule = TypeOrmModule.forRoot({
     StoreModule,
     ServiceModule,
   ],
-  controllers: [Appv2Controller, PhDataController],
+  controllers: [],
   providers: [
     AppService,
     IsRoleExistsConstraint,
