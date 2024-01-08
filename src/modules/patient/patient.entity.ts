@@ -15,7 +15,7 @@ import { v4 } from 'uuid';
 @Entity()
 export class Patient {
   /**
-   * common fields
+   * Common Fields
    */
   @PrimaryGeneratedColumn()
   id: number;
@@ -36,25 +36,34 @@ export class Patient {
   deleted: boolean;
 
   /**
-   * entity fields
+   * Personal Information
    */
-  @Column()
+  @Column({ nullable: true })
   controlNo: string;
 
-  @Column()
+  @Column({ nullable: true })
   firstName: string;
 
-  @Column()
+  @Column({ nullable: true })
   lastName: string;
 
-  @Column()
+  @Column({ nullable: true })
   middleName: string;
 
-  @Column()
-  email: string;
+  @Column({ nullable: true })
+  gender: string;
 
-  @Column()
+  @Column({ nullable: true })
   birthDate: Date;
+
+  /**
+   * Contact Information
+   */
+  @Column({ nullable: true })
+  mobileNo: string;
+
+  @Column({ nullable: true })
+  email: string;
 
   /**
    * relations

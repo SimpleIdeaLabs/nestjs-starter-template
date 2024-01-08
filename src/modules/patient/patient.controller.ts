@@ -3,6 +3,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UploadedFiles,
@@ -35,13 +36,31 @@ export class PatientController {
   ) {}
 
   /**
-   * Create Patient
+   * Create Patient Personal Information
    */
-  @Post('/')
+  @Post('/personal-information')
   @AuthorizedRoles(ROLE_TYPES.SUPER_ADMIN, ROLE_TYPES.PMS_ADMIN)
   @UseGuards(AuthenticatedGuard, AuthorizedGuard)
-  async create(@Req() req: Request) {
-    const response = await this.patientService.create({
+  async createPersonalInformation(@Req() req: Request) {
+    const response = await this.patientService.createPersonalInformation({
+      ...req.body,
+      currentUser: req.user,
+    });
+    return response;
+  }
+
+  /**
+   * Create Patient Personal Information
+   */
+  @Patch('/personal-information/:patientId')
+  @AuthorizedRoles(ROLE_TYPES.SUPER_ADMIN, ROLE_TYPES.PMS_ADMIN)
+  @UseGuards(AuthenticatedGuard, AuthorizedGuard)
+  async updatePersonalInformation(
+    @Param('patientId') patientId: number,
+    @Req() req: Request,
+  ) {
+    const response = await this.patientService.updatePersonalInformation({
+      patientId,
       ...req.body,
       currentUser: req.user,
     });
@@ -163,5 +182,15 @@ export class PatientController {
       currentUser: req.user,
     });
     return response;
+  }
+
+  /**
+   * Search Patient
+   */
+  @Get('/search')
+  @AuthorizedRoles(ROLE_TYPES.SUPER_ADMIN, ROLE_TYPES.PMS_ADMIN)
+  @UseGuards(AuthenticatedGuard, AuthorizedGuard)
+  async search() {
+    return null;
   }
 }

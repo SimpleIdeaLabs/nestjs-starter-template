@@ -30,6 +30,7 @@ import { ServiceModule } from './modules/service/service.module';
 import { StoreModule } from './modules/store/store.module';
 import { SystemModule } from './modules/system/system.module';
 import { UserModule } from './modules/user/user.module';
+import { IsGenderValidConstraint } from './common/validators/is-gender-valid';
 
 // config
 const configModule = ConfigModule.forRoot({
@@ -78,6 +79,7 @@ const typeormModule = TypeOrmModule.forRoot({
     IsRoleUniqueConstraint,
     IsUserEmailUniqueConstraint,
     IsValueUniqueConstraint,
+    IsGenderValidConstraint,
   ],
 })
 export class AppModule {

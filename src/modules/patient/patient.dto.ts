@@ -2,11 +2,9 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsDateString,
-  IsEmail,
   IsIn,
   IsNotEmpty,
 } from 'class-validator';
-import { extend } from 'lodash';
 import {
   PaginatedParams,
   PaginatedResponse,
@@ -17,8 +15,9 @@ import { IsPatientPhotoValid } from '../../common/validators/patient-photo.valid
 import { User } from '../user/user.entity';
 import { PATIENT_DOCS_CATEGORY } from './patient.constants';
 import { Patient } from './patient.entity';
+import { IsGenderValid } from 'src/common/validators/is-gender-valid';
 
-export class CreatePatientParams {
+export class PatientPersonalInformationParams {
   @IsNotEmpty({
     message: 'First Name is required',
   })
@@ -35,15 +34,10 @@ export class CreatePatientParams {
   lastName: string;
 
   @IsNotEmpty({
-    message: 'Email is required',
+    message: 'Gender is required',
   })
-  @IsEmail(
-    {},
-    {
-      message: 'Provide a valid email',
-    },
-  )
-  email: string;
+  @IsGenderValid()
+  gender: string;
 
   @IsNotEmpty({
     message: 'Birth Date is required',
@@ -58,12 +52,13 @@ export class CreatePatientParams {
 
   @IsNotEmpty()
   currentUser: User;
+}
 
-  // @IsArray({
-  //   message: 'Photo should be an array',
-  // })
-  // @ArrayNotEmpty()
-  // photos: PatientPhoto[];
+export class UpdatePatientPersonalInformationParams extends PatientPersonalInformationParams {
+  @IsNotEmpty({
+    message: 'Patient ID is required',
+  })
+  patientId: string;
 }
 
 export class UploadPatientPhotosParams {

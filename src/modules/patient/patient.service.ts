@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { validateAndExtract } from 'class-validator-ext';
 import { DataSource } from 'typeorm';
@@ -8,7 +12,7 @@ import { UtilService } from '../../common/modules/global/util.service';
 import { PatientDocument } from './patient-document.entity';
 import { PatientPhoto } from './patient-photo.entity';
 import {
-  CreatePatientParams,
+  PatientPersonalInformationParams,
   DeletePatientDocumentsParams,
   DeletePatientPhotosParams,
   ListPatientsParams,
@@ -16,6 +20,7 @@ import {
   PatientDetailParams,
   UploadPatientDocumentsParams,
   UploadPatientPhotosParams,
+  UpdatePatientPersonalInformationParams,
 } from './patient.dto';
 import { Patient } from './patient.entity';
 
@@ -27,13 +32,16 @@ export class PatientService {
   ) {}
 
   /**
-   * Create Patient
+   * Create Patient Personal Information
    */
-  public async create(
-    params: CreatePatientParams,
+  public async createPersonalInformation(
+    params: PatientPersonalInformationParams,
   ): Promise<ApiResponse<Patient>> {
     const response = new ApiResponse<Patient>();
-    const createUserParams = plainToClass(CreatePatientParams, params);
+    const createUserParams = plainToClass(
+      PatientPersonalInformationParams,
+      params,
+    );
     const validationErrors = await validateAndExtract(createUserParams);
 
     // validation
@@ -45,7 +53,7 @@ export class PatientService {
     }
 
     // params
-    const { firstName, middleName, lastName, email, birthDate, currentUser } =
+    const { firstName, middleName, lastName, birthDate, gender, currentUser } =
       params;
 
     // create patient
@@ -53,8 +61,8 @@ export class PatientService {
     patient.firstName = firstName;
     patient.middleName = middleName;
     patient.lastName = lastName;
-    patient.email = email;
     patient.birthDate = birthDate;
+    patient.gender = gender;
     patient.createdBy = currentUser;
     patient.updatedBy = currentUser;
     patient.generateControlNo();
@@ -64,6 +72,66 @@ export class PatientService {
     response.status = true;
     response.data = patient;
     response.message = `${firstName} ${lastName} was successfully created`;
+    return response;
+  }
+
+  /**
+   * Update Patient Personal Information
+   */
+  public async updatePersonalInformation(
+    params: UpdatePatientPersonalInformationParams,
+  ): Promise<ApiResponse<Patient>> {
+    const response = new ApiResponse<Patient>();
+    const updateUserParams = plainToClass(
+      UpdatePatientPersonalInformationParams,
+      params,
+    );
+    const validationErrors = await validateAndExtract(updateUserParams);
+
+    // validation
+    if (!validationErrors.isValid) {
+      response.status = false;
+      response.message = 'Invalid parameters, check input';
+      response.validationErrors = validationErrors.errors;
+      throw new BadRequestException(response, ERROR_TITLES.VALIDATION_ERROR);
+    }
+
+    // params
+    const {
+      patientId,
+      firstName,
+      middleName,
+      lastName,
+      birthDate,
+      gender,
+      currentUser,
+    } = params;
+
+    const existingPatient = await this.dataSource.manager.findOne(Patient, {
+      where: {
+        id: Number(patientId),
+      },
+    });
+
+    if (!existingPatient) {
+      response.status = false;
+      response.message = 'Patient not found.';
+      throw new NotFoundException(response, ERROR_TITLES.NON_FOUND_ERROR);
+    }
+
+    // create patient
+    existingPatient.firstName = firstName;
+    existingPatient.middleName = middleName;
+    existingPatient.lastName = lastName;
+    existingPatient.birthDate = birthDate;
+    existingPatient.gender = gender;
+    existingPatient.updatedBy = currentUser;
+
+    await this.dataSource.manager.save(existingPatient);
+
+    response.status = true;
+    response.data = existingPatient;
+    response.message = `${firstName} ${lastName} was successfully updated`;
     return response;
   }
 
@@ -299,6 +367,42 @@ export class PatientService {
    * Patient Detail
    */
   public async detail(
+    params: PatientDetailParams,
+  ): Promise<ApiResponse<Patient>> {
+    const response = new ApiResponse<Patient>();
+
+    const patientDetailParams = plainToClass(PatientDetailParams, params);
+    const validation = await validateAndExtract(patientDetailParams);
+
+    if (!validation.isValid) {
+      response.status = false;
+      response.message = 'Invalid parameters, check input';
+      response.validationErrors = validation.errors;
+      throw new BadRequestException(response, ERROR_TITLES.VALIDATION_ERROR);
+    }
+
+    // params
+    const { patientId } = patientDetailParams;
+
+    const patient = await this.dataSource.manager.findOne(Patient, {
+      where: {
+        id: patientId,
+      },
+      relations: ['photos', 'documents'],
+    });
+
+    // response
+    response.status = true;
+    response.data = patient;
+    response.message = 'Patient Details';
+
+    return response;
+  }
+
+  /**
+   * Search Patient
+   */
+  public async search(
     params: PatientDetailParams,
   ): Promise<ApiResponse<Patient>> {
     const response = new ApiResponse<Patient>();
