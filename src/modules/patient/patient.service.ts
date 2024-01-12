@@ -21,6 +21,7 @@ import {
   UploadPatientDocumentsParams,
   UploadPatientPhotosParams,
   UpdatePatientPersonalInformationParams,
+  UpdatePatientContactInformationParams,
 } from './patient.dto';
 import { Patient } from './patient.entity';
 
@@ -132,6 +133,54 @@ export class PatientService {
     response.status = true;
     response.data = existingPatient;
     response.message = `${firstName} ${lastName} was successfully updated`;
+    return response;
+  }
+
+  /**
+   * Update Patient Contact Information
+   */
+  public async updateContactInformation(
+    params: UpdatePatientContactInformationParams,
+  ): Promise<ApiResponse<Patient>> {
+    const response = new ApiResponse<Patient>();
+    const updateParams = plainToClass(
+      UpdatePatientContactInformationParams,
+      params,
+    );
+    const validationErrors = await validateAndExtract(updateParams);
+
+    // validation
+    if (!validationErrors.isValid) {
+      response.status = false;
+      response.message = 'Invalid parameters, check input';
+      response.validationErrors = validationErrors.errors;
+      throw new BadRequestException(response, ERROR_TITLES.VALIDATION_ERROR);
+    }
+
+    // params
+    const { patientId, mobileNo, email } = params;
+
+    const existingPatient = await this.dataSource.manager.findOne(Patient, {
+      where: {
+        id: Number(patientId),
+      },
+    });
+
+    if (!existingPatient) {
+      response.status = false;
+      response.message = 'Patient not found.';
+      throw new NotFoundException(response, ERROR_TITLES.NON_FOUND_ERROR);
+    }
+
+    // create patient
+    existingPatient.mobileNo = mobileNo;
+    existingPatient.email = email;
+
+    await this.dataSource.manager.save(existingPatient);
+
+    response.status = true;
+    response.data = existingPatient;
+    response.message = `${existingPatient.firstName} ${existingPatient.lastName} contact information was successfully updated`;
     return response;
   }
 

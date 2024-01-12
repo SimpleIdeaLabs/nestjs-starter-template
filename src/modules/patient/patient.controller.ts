@@ -50,7 +50,7 @@ export class PatientController {
   }
 
   /**
-   * Create Patient Personal Information
+   * Update Patient Personal Information
    */
   @Patch('/personal-information/:patientId')
   @AuthorizedRoles(ROLE_TYPES.SUPER_ADMIN, ROLE_TYPES.PMS_ADMIN)
@@ -60,6 +60,24 @@ export class PatientController {
     @Req() req: Request,
   ) {
     const response = await this.patientService.updatePersonalInformation({
+      patientId,
+      ...req.body,
+      currentUser: req.user,
+    });
+    return response;
+  }
+
+  /**
+   * Update Patient Contact Information
+   */
+  @Patch('/contact-information/:patientId')
+  @AuthorizedRoles(ROLE_TYPES.SUPER_ADMIN, ROLE_TYPES.PMS_ADMIN)
+  @UseGuards(AuthenticatedGuard, AuthorizedGuard)
+  async updateContactInformation(
+    @Param('patientId') patientId: number,
+    @Req() req: Request,
+  ) {
+    const response = await this.patientService.updateContactInformation({
       patientId,
       ...req.body,
       currentUser: req.user,

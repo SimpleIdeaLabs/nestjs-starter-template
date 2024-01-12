@@ -2,6 +2,7 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsDateString,
+  IsEmail,
   IsIn,
   IsNotEmpty,
 } from 'class-validator';
@@ -55,6 +56,26 @@ export class PatientPersonalInformationParams {
 }
 
 export class UpdatePatientPersonalInformationParams extends PatientPersonalInformationParams {
+  @IsNotEmpty({
+    message: 'Patient ID is required',
+  })
+  patientId: string;
+}
+
+export class PatientContactInformationParams {
+  @IsNotEmpty({
+    message: 'Email is required',
+  })
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty({
+    message: 'Mobile Number is required',
+  })
+  mobileNo: string;
+}
+
+export class UpdatePatientContactInformationParams extends PatientContactInformationParams {
   @IsNotEmpty({
     message: 'Patient ID is required',
   })
