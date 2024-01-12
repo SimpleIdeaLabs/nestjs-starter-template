@@ -86,6 +86,24 @@ export class PatientController {
   }
 
   /**
+   * Update Patient Address Information
+   */
+  @Patch('/address-information/:patientId')
+  @AuthorizedRoles(ROLE_TYPES.SUPER_ADMIN, ROLE_TYPES.PMS_ADMIN)
+  @UseGuards(AuthenticatedGuard, AuthorizedGuard)
+  async updateAddressInformation(
+    @Param('patientId') patientId: number,
+    @Req() req: Request,
+  ) {
+    const response = await this.patientService.updateAddressInformation({
+      patientId,
+      ...req.body,
+      currentUser: req.user,
+    });
+    return response;
+  }
+
+  /**
    * Upload Photos
    */
   @Post('/:patientId/photo')

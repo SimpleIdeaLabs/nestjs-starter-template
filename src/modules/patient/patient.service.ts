@@ -22,6 +22,7 @@ import {
   UploadPatientPhotosParams,
   UpdatePatientPersonalInformationParams,
   UpdatePatientContactInformationParams,
+  UpdatePatientAddressInformationParams,
 } from './patient.dto';
 import { Patient } from './patient.entity';
 
@@ -181,6 +182,66 @@ export class PatientService {
     response.status = true;
     response.data = existingPatient;
     response.message = `${existingPatient.firstName} ${existingPatient.lastName} contact information was successfully updated`;
+    return response;
+  }
+
+  /**
+   * Update Patient Address Information
+   */
+  public async updateAddressInformation(
+    params: UpdatePatientAddressInformationParams,
+  ): Promise<ApiResponse<Patient>> {
+    const response = new ApiResponse<Patient>();
+    const updateParams = plainToClass(
+      UpdatePatientAddressInformationParams,
+      params,
+    );
+    const validationErrors = await validateAndExtract(updateParams);
+
+    // validation
+    if (!validationErrors.isValid) {
+      response.status = false;
+      response.message = 'Invalid parameters, check input';
+      response.validationErrors = validationErrors.errors;
+      throw new BadRequestException(response, ERROR_TITLES.VALIDATION_ERROR);
+    }
+
+    // params
+    const {
+      patientId,
+      houseNo = '',
+      street = '',
+      cityOrTown = '',
+      provinceOrRegion = '',
+      postal = '',
+      country = '',
+    } = params;
+
+    const existingPatient = await this.dataSource.manager.findOne(Patient, {
+      where: {
+        id: Number(patientId),
+      },
+    });
+
+    if (!existingPatient) {
+      response.status = false;
+      response.message = 'Patient not found.';
+      throw new NotFoundException(response, ERROR_TITLES.NON_FOUND_ERROR);
+    }
+
+    // create patient
+    existingPatient.houseNo = houseNo;
+    existingPatient.street = street;
+    existingPatient.cityOrTown = cityOrTown;
+    existingPatient.provinceOrRegion = provinceOrRegion;
+    existingPatient.postal = postal;
+    existingPatient.country = country;
+
+    await this.dataSource.manager.save(existingPatient);
+
+    response.status = true;
+    response.data = existingPatient;
+    response.message = `${existingPatient.firstName} ${existingPatient.lastName} address information was successfully updated`;
     return response;
   }
 

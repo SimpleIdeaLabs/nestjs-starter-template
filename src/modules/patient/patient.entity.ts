@@ -66,6 +66,27 @@ export class Patient {
   email: string;
 
   /**
+   * Address Information
+   */
+  @Column({ nullable: true })
+  houseNo: string;
+
+  @Column({ nullable: true })
+  street: string;
+
+  @Column({ nullable: true })
+  cityOrTown: string;
+
+  @Column({ nullable: true })
+  provinceOrRegion: string;
+
+  @Column({ nullable: true })
+  postal: string;
+
+  @Column({ nullable: true })
+  country: string;
+
+  /**
    * relations
    */
   @OneToMany(

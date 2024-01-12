@@ -5,6 +5,7 @@ import {
   IsEmail,
   IsIn,
   IsNotEmpty,
+  IsOptional,
 } from 'class-validator';
 import {
   PaginatedParams,
@@ -76,6 +77,33 @@ export class PatientContactInformationParams {
 }
 
 export class UpdatePatientContactInformationParams extends PatientContactInformationParams {
+  @IsNotEmpty({
+    message: 'Patient ID is required',
+  })
+  patientId: string;
+}
+
+export class PatientAddressInformationParams {
+  @IsOptional()
+  houseNo: string;
+
+  @IsOptional()
+  street: string;
+
+  @IsOptional()
+  cityOrTown: string;
+
+  @IsOptional()
+  provinceOrRegion: string;
+
+  @IsOptional()
+  postal: string;
+
+  @IsOptional()
+  country: string;
+}
+
+export class UpdatePatientAddressInformationParams extends PatientAddressInformationParams {
   @IsNotEmpty({
     message: 'Patient ID is required',
   })
