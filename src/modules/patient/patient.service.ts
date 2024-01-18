@@ -494,12 +494,17 @@ export class PatientService {
     // params
     const { patientId } = patientDetailParams;
 
-    const patient = await this.dataSource.manager.findOne(Patient, {
-      where: {
-        id: patientId,
-      },
-      relations: ['photos', 'documents'],
-    });
+    const patient = await this.dataSource.manager
+      .createQueryBuilder(Patient, 'patient')
+      .leftJoinAndSelect(
+        'patient.photos',
+        'photo',
+        'photo.deleted = :isDeleted',
+        { isDeleted: false },
+      )
+      .leftJoinAndSelect('patient.documents', 'document')
+      .where('patient.id = :patientId', { patientId })
+      .getOne();
 
     // response
     response.status = true;
