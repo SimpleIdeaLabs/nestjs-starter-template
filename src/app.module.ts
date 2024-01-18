@@ -118,7 +118,9 @@ export const getAppInstance = async () => {
   /**
    * Public uploads
    */
-  _app.useStaticAssets(join(__dirname, '..', 'uploads'));
+  _app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads',
+  });
 
   /**
    * Enable API Versioning

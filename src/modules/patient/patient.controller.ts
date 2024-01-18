@@ -106,7 +106,7 @@ export class PatientController {
   /**
    * Upload Photos
    */
-  @Post('/:patientId/photo')
+  @Post('/photo/:patientId')
   @UseInterceptors(
     FilesInterceptor('files', MAX_PATIENT_PHOTOS_PER_UPLOAD, {
       storage: patientPhotosStorage,
@@ -130,7 +130,7 @@ export class PatientController {
   /**
    * Delete Photo
    */
-  @Delete('/:patientId/photo')
+  @Delete('/photo/:patientId')
   @AuthorizedRoles(ROLE_TYPES.SUPER_ADMIN, ROLE_TYPES.PMS_ADMIN)
   @UseGuards(AuthenticatedGuard, AuthorizedGuard)
   async deletePhoto(
