@@ -52,7 +52,7 @@ export class PatientController {
   /**
    * Update Patient Personal Information
    */
-  @Patch('/personal-information/:patientId')
+  @Patch('/:patientId/personal-information')
   @AuthorizedRoles(ROLE_TYPES.SUPER_ADMIN, ROLE_TYPES.PMS_ADMIN)
   @UseGuards(AuthenticatedGuard, AuthorizedGuard)
   async updatePersonalInformation(
@@ -70,7 +70,7 @@ export class PatientController {
   /**
    * Update Patient Contact Information
    */
-  @Patch('/contact-information/:patientId')
+  @Patch('/:patientId/contact-information')
   @AuthorizedRoles(ROLE_TYPES.SUPER_ADMIN, ROLE_TYPES.PMS_ADMIN)
   @UseGuards(AuthenticatedGuard, AuthorizedGuard)
   async updateContactInformation(
@@ -88,7 +88,7 @@ export class PatientController {
   /**
    * Update Patient Address Information
    */
-  @Patch('/address-information/:patientId')
+  @Patch('/:patientId/address-information')
   @AuthorizedRoles(ROLE_TYPES.SUPER_ADMIN, ROLE_TYPES.PMS_ADMIN)
   @UseGuards(AuthenticatedGuard, AuthorizedGuard)
   async updateAddressInformation(
@@ -106,7 +106,7 @@ export class PatientController {
   /**
    * Upload Photos
    */
-  @Post('/photo/:patientId')
+  @Post('/:patientId/photo')
   @UseInterceptors(
     FilesInterceptor('files', MAX_PATIENT_PHOTOS_PER_UPLOAD, {
       storage: patientPhotosStorage,
@@ -130,7 +130,7 @@ export class PatientController {
   /**
    * Delete Photo
    */
-  @Delete('/photo/:patientId')
+  @Delete('/:patientId/photo')
   @AuthorizedRoles(ROLE_TYPES.SUPER_ADMIN, ROLE_TYPES.PMS_ADMIN)
   @UseGuards(AuthenticatedGuard, AuthorizedGuard)
   async deletePhoto(

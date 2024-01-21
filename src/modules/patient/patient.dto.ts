@@ -162,6 +162,11 @@ export class UploadPatientDocumentsParams {
   })
   type: string;
 
+  @IsNotEmpty({
+    message: 'Tags is required',
+  })
+  tags: string[];
+
   @IsPatientDocsValid()
   files: any[];
 }

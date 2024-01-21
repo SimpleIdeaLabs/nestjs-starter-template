@@ -32,6 +32,9 @@ export class PatientDocument {
   @Column()
   type: string;
 
+  @Column('simple-array')
+  tags: string[];
+
   @Column()
   description: string;
 

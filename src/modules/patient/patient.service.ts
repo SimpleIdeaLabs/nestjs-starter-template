@@ -353,7 +353,7 @@ export class PatientService {
     }
 
     // params
-    const { currentUser, patientId, files, type, description } = params;
+    const { currentUser, patientId, files, type, description, tags } = params;
 
     // create photos
     const filesToSave = [];
@@ -365,6 +365,7 @@ export class PatientService {
       patientDoc.path = file.path;
       patientDoc.patientId = patientId;
       patientDoc.type = type;
+      patientDoc.tags = tags;
       patientDoc.description = description;
       filesToSave.push(patientDoc);
     }
@@ -502,7 +503,12 @@ export class PatientService {
         'photo.deleted = :isDeleted',
         { isDeleted: false },
       )
-      .leftJoinAndSelect('patient.documents', 'document')
+      .leftJoinAndSelect(
+        'patient.documents',
+        'document',
+        'document.deleted = :isDeleted',
+        { isDeleted: false },
+      )
       .where('patient.id = :patientId', { patientId })
       .getOne();
 

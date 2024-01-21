@@ -23,15 +23,17 @@ export class IsPatientDocsValidConstraint
       return false;
     }
 
-    let valid = true;
+    return true;
 
-    for (const file of docs) {
-      if (!lodash.includes(MIME_TYPES, file.mimetype)) {
-        valid = false;
-      }
-    }
+    // let valid = true;
 
-    return valid;
+    // for (const file of docs) {
+    //   if (!lodash.includes(MIME_TYPES, file.mimetype)) {
+    //     valid = false;
+    //   }
+    // }
+
+    // return valid;
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {
