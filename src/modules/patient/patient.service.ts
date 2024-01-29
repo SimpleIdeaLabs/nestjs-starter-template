@@ -67,8 +67,9 @@ export class PatientService {
     patient.gender = gender;
     patient.createdBy = currentUser;
     patient.updatedBy = currentUser;
-    patient.generateControlNo();
+    await this.dataSource.manager.save(patient);
 
+    patient.generateControlNo();
     await this.dataSource.manager.save(patient);
 
     response.status = true;
