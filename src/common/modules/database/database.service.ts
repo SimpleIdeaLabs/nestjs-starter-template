@@ -47,12 +47,12 @@ export class DatabaseService {
     await this.setSystemSetUp();
   }
 
-  public async hasBeenSetUp(): Promise<boolean> {
+  public async hasBeenSetUp() {
     const system = await this.dataSource.manager.count(System);
     return system !== 0;
   }
 
-  public async setSystemSetUp(): Promise<void> {
+  public async setSystemSetUp() {
     const system = new System();
     system.seeded = true;
     system.appName = 'nestjs starter template';
@@ -67,7 +67,7 @@ export class DatabaseService {
   }
 
   public async resetDatabase() {
-    this.myLogger.log('Staring database reset...');
+    this.myLogger.log('Starting database reset...');
     const env = this.configService.get('env');
     if (env === ENV.DEVELOP || env === ENV.TEST) {
       /**
@@ -80,16 +80,22 @@ export class DatabaseService {
        */
       for (const entity of this.dataSource.entityMetadatas) {
         const repository = this.dataSource.getRepository(entity.name);
-        await repository.query(`SET FOREIGN_KEY_CHECKS = 0;`);
-        await repository.query(`TRUNCATE TABLE \`${entity.tableName}\`;`);
-        await repository.query(`SET FOREIGN_KEY_CHECKS = 1;`);
+        // PostgreSQL syntax for disabling/enabling constraints and truncating
+        await repository.query(
+          `ALTER TABLE "${entity.tableName}" DISABLE TRIGGER ALL;`,
+        );
+        await repository.query(`TRUNCATE TABLE "${entity.tableName}" CASCADE;`);
+        await repository.query(
+          `ALTER TABLE "${entity.tableName}" ENABLE TRIGGER ALL;`,
+        );
       }
 
       /**
-       * Truncate sys databases
+       * Truncate migrations table
        */
       try {
-        await this.dataSource.query(`TRUNCATE TABLE sys_migrations`);
+        // PostgreSQL uses double quotes for identifiers
+        await this.dataSource.query(`TRUNCATE TABLE "migrations" CASCADE;`);
       } catch (error) {}
     }
     this.myLogger.log('Done database reset...');

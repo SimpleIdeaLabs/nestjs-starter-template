@@ -41,12 +41,12 @@ const configModule = ConfigModule.forRoot({
 
 // typeorm
 const typeormModule = TypeOrmModule.forRoot({
-  type: 'mysql',
-  host: process.env.MYSQL_SERVER_NAME,
-  port: +process.env.MYSQL_PORT,
-  username: process.env.MYSQL_USER,
-  password: process.env.MYSQL_ROOT_PASSWORD,
-  database: process.env.MYSQL_DATABASE,
+  type: 'postgres',
+  host: process.env.POSTGRES_SERVER_NAME,
+  port: +process.env.POSTGRES_PORT,
+  username: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+  database: process.env.POSTGRES_DATABASE,
   entities: [
     process.env.ENV === ENV.TEST
       ? __dirname + '/../**/*.entity{.ts,.js}'

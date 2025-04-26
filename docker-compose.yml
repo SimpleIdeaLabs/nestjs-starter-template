@@ -17,10 +17,10 @@ services:
       - '/app/node_modules'
     links:
       - api-service-mongo
-      - api-service-mysql
+      - api-service-postgres
     depends_on:
       - api-service-mongo
-      - api-service-mysql
+      - api-service-postgres
 
   api-service-mongo:
     image: 'mongo:4.0'
@@ -31,13 +31,17 @@ services:
       - './.data/mongo:/data/db'
       - './.data/mongoconfigdb:/data/configdb'
 
-  api-service-mysql:
+  api-service-postgres:
     platform: linux/amd64
-    image: 'mysql:5.7.33'
-    container_name: api-service-mysql
+    image: 'postgres:15'
+    container_name: api-service-postgres
     volumes:
-      - './.data/mysql:/var/lib/mysql'
+      - './.data/postgres:/var/lib/postgresql/data'
     ports:
-      - '5334:3306'
+      - '5434:5432'
     env_file:
       - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
