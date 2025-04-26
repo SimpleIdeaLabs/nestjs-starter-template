@@ -1,4 +1,4 @@
-FROM node:20.10.0-bullseye
+FROM node:22.14.0-bullseye
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ ADD package.json /app/package.json
 
 ADD package-lock.json /app/package-lock.json
 
-RUN npm i
+RUN npm ci
 
 ADD . /app
 

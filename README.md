@@ -20,7 +20,7 @@ an api boilerplate build with nestjs that comes with out of the box common featu
 
 ### Pre-requisites
 
-1. NodeJS - v20.10.0
+1. NodeJS - v22.14.0
 2. Docker
 
 ### Get Started
